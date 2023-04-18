@@ -1,0 +1,111 @@
+<%- include('partials/header') %>
+
+<div class="dashcontainer">
+  <div class="emptySide"></div>
+  <div class="mainSide">
+    <div class="clientDetails">Sizing Details by Monthly Bill</div>
+
+    <div class="sizingDetails" >
+      Client ID: <%= clientDetails[0].clientID %>
+    </div>
+    <div class="sizingDetails" >
+        Client Name: <%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %>
+      </div>
+    <div class="sizingDetails">
+      Estimated Power Required: <%= powerSizing[0].load_watts %> 
+    </div>
+    <div class="sizingDetails">
+        Phase Type: <%= powerSizing[0].output_phase %> Phase
+    </div>
+    <br />
+
+    <form action="/sizingByBillPanel" method="POST">
+        <div class="totalSystemValues">
+            <div class="totalInvPower">
+                <label for="inverterOption">Inverters</label><br />
+                <select name="inverterOption" id="inverterOption" class="sizingOptions" onchange="calcInvPower()">
+                    <% for (var i = 0; i < inverters.length; i++) { %>
+                    <option value=<%= inverters[i].output_powerW %>><%= inverters[i].inverter_model %></option>
+                    <% } %>
+                </select><br />
+                <label for="inverterOptionPcs">Number of Inverters</label><br />
+                <select name="inverterOptionPcs" id="inverterOptionPcs" class="sizingOptions" onchange="calcInvPower()">
+                    <% for (var i = 0; i <= 10; i++) { %>
+                    <option value=<%= i %>><%= i %></option>
+                    <% } %>
+                </select><br />
+                <label for="calculatedInvPower">Total System Power (Watts)</label><br />
+                <input
+                    class="sizingNoOptions"
+                    type="number"
+                    id="calculatedInvPower"
+                    name="calculatedInvPower"
+                    value="0"
+                    readonly/><br />
+                <br />
+            </div>
+            <div class="totalSolarPower">
+                <label for="panelOption">Solar Panels</label><br />
+                <select name="panelOption" id="panelOption" class="sizingOptions" onchange="calcSolarPower()">
+                    <% for (var i = 0; i < solarpanels.length; i++) { %>
+                    <option value=<%= solarpanels[i].Wp %>><%= solarpanels[i].panel_model %></option>
+                    <% } %>
+                </select><br />
+                <label for="panelOptionPcs">Number of Solar Panels</label><br />
+                <select name="panelOptionPcs" id="panelOptionPcs" class="sizingOptions" onchange="calcSolarPower()">
+                    <% for (var i = 0; i <= 100; i++) { %>
+                    <option value=<%= i %>><%= i %></option>
+                    <% } %>
+                </select><br />
+                <label for="calculatedSolarPower">Total System Power (Watts)</label><br />
+                <input
+                    class="sizingNoOptions"
+                    type="number"
+                    id="calculatedSolarPower"
+                    name="calculatedSolarPower"
+                    value="0"
+                    readonly/><br />
+                <br />
+            </div>
+            <div class="totalBattPower">
+                <label for="batteryOption">Batteries</label><br />
+                <select name="batteryOption" id="batteryOption" class="sizingOptions" onchange="calcBattEnergy()">
+                    <% for (var i = 0; i < batteries.length; i++) { %>
+                    <option value=<%= batteries[i].capacity_Ah %>><%= batteries[i].battery_model %></option>
+                    <% } %>
+                </select><br />
+                <label for="batteryOptionPcs">Number of Batteries</label><br />
+                <select name="batteryOptionPcs" id="batteryOptionPcs" class="sizingOptions" onchange="calcBattEnergy()">
+                    <% for (var i = 0; i <= 20; i++) { %>
+                    <option value=<%= i %>><%= i %></option>
+                    <% } %>
+                </select><br />
+                <label for="calculatedBattEnergy">Total System Energy (Ah)</label><br />
+                <input
+                    class="sizingNoOptions"
+                    type="number"
+                    id="calculatedBattEnergy"
+                    name="calculatedBattEnergy"
+                    value="0"
+                    readonly/><br />
+                <br />
+            </div>
+        </div>
+        
+
+      <button type="submit" id="solarsize-btn" class="solarsize-btn">
+        SUBMIT
+      </button>
+      <button
+        type="submit"
+        id="logout-btn"
+        class="loginbtn"
+        formaction="/logout"
+        formmethod="get">
+        LOG OUT
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

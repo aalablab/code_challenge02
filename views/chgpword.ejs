@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+
+<div class="dashcontainer">
+  <div class="emptySide"></div>
+  <div class="mainSide">
+    <form action="/pwordchgd" method="POST">
+      <div class="errorNotification" >
+        <% if (pwordchgd == false) { %> <%= errors %> <% } %>
+      </div>
+      <label for="oldpw">Old Password:</label><br />
+      <input type="password" id="oldpw" name="oldpw" class="loginField" /><br />
+      <label for="newpw" class="block">New Password:</label><br />
+      <input type="password" id="newpw" name="newpw" class="loginField" /><br />
+      <label for="newpwConfirm" class="block">Confirm New Password:</label
+      ><br />
+      <input
+        type="password"
+        id="newpwConfirm"
+        name="newpwConfirm"
+        class="loginField" /><br /><br />
+      <button type="submit" id="confirm-btn" class="loginbtn">CONFIRM</button>
+      <button
+        type="submit"
+        id="logout-btn"
+        class="loginbtn"
+        formaction="/logout"
+        formmethod="GET">
+        LOG OUT
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

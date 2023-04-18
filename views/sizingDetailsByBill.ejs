@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<div class="dashcontainer">
+  <div class="emptySide"></div>
+  <div class="mainSide">
+    <div class="clientDetails">Sizing Details by Monthly Bill:</div>
+
+    <div class="clientDetails">
+      <% if(wasClientCreated == false){ %> There is an error: <%= errors %> <% }
+      else{ %> for Client ID #: <%= clientDetails[0].clientID %> with Name: <%=
+      clientDetails[0].firstname %> <%= clientDetails[0].lastname %> <% } %>
+    </div>
+
+    <form action="/suggestInverterByBill" method="POST">
+      <label for="monthlyBill">Average Monthly Bill (Php)</label><br />
+      <input
+        class="loginField"
+        type="number"
+        id="monthlyBill"
+        name="monthlyBill"
+        required /><br />
+      <label for="currentPhase">Phase Type</label><br />
+      <select name="currentPhase" id="currentPhase" class="loginField">
+        <option value="1">Single Phase</option>
+        <option value="3">Three Phase</option>
+      </select>
+      <br /><br />
+
+      <button type="submit" id="solarsize-btn" class="solarsize-btn">
+        SUBMIT
+      </button>
+      <button
+        type="submit"
+        id="logout-btn"
+        class="loginbtn"
+        formaction="/logout"
+        formmethod="get">
+        LOG OUT
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<div class="dashcontainer">
+  <div class="emptySide"></div>
+  <div class="mainSide">
+    <div class="successNotification">
+      <% if (pwordchgd == true) { %> Password Changed Successfully! <% } else {
+      %> LOG IN SUCCESSFUL!!! <% } %><br />
+    </div>
+
+    <div>Good day <b><%= v_sessionUsr[0].name %></b>.</div>
+    <br />
+    <div>
+      By clicking <b>"ACCEPT"</b>, you agree to all the terms and conditions in
+      using this app.
+    </div>
+    <br /><br />
+
+    <form action="/clientList" method="GET">
+      <button type="submit" id="accept-btn" class="loginbtn">ACCEPT</button>
+      <button
+        type="submit"
+        id="chgpword-btn"
+        class="loginbtn"
+        formaction="/chgpword">
+        CHANGE PASSWORD
+      </button>
+      <button
+        type="submit"
+        id="logout-btn"
+        class="loginbtn"
+        formaction="/logout">
+        LOG OUT
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

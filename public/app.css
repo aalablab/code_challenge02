@@ -1,0 +1,190 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: rgb(66, 69, 86);
+  font-weight: 100;
+}
+
+/* ========== BEGIN HEADER STYLES ============== */
+.header {
+  padding: 10px;
+  display: flex;
+}
+
+.handrockslogo {
+  flex: 13%;
+  padding: 10px;
+}
+.handrockslogo img {
+  height: 80px;
+  width: auto;
+}
+
+.solartitles {
+  flex: 62%;
+  padding: 10px;
+}
+.solartitle {
+  font-size: 30px;
+  font-weight: bold;
+  padding-bottom: 10px;
+  color: #005596;
+}
+
+.currDateTime {
+  flex: 25%;
+  padding: 17px;
+  text-align: right;
+}
+
+/* ============ END HEADER STYLES =================== */
+
+/* ============ BEGIN FOOTER STYLES ================= */
+.footer {
+  padding: 10px;
+  text-align: center;
+}
+/* ============ END FOOTER STYLES ==================== */
+
+/* ============ BEGIN LOGIN + HOME STYLES =========== */
+.dashcontainer {
+  display: flex;
+  min-height: 75vh;
+}
+
+.emptySide {
+  flex: 2%;
+  padding: 10px;
+}
+
+.mainSide {
+  flex: 98%;
+  padding: 10px;
+  flex-direction: column;
+}
+
+.errorNotification {
+  color: red;
+  font-weight: bold;
+  font-size: 25px;
+  padding-bottom: 30px;
+  text-align: left;
+}
+.successNotification {
+  color: green;
+  font-weight: bold;
+  font-size: 25px;
+  padding-bottom: 30px;
+  text-align: left;
+}
+
+label {
+  display: inline-block;
+  text-align: left;
+  width: 200px;
+}
+
+.loginField {
+  margin-top: 5px;
+  margin-bottom: 20px;
+  margin-left: 0;
+  padding: 5px 5px;
+  width: 220px;
+  height: 30px;
+  font-size: 15px;
+  border-radius: 5px;
+  border-color: rgb(230, 230, 230);
+}
+
+.loginbtn {
+  font-family: sans-serif;
+  font-size: 15px;
+  padding: 5px 30px;
+  text-align: center;
+  text-shadow: 0 0.05rem 0.1rem rgba(0, 0, 0, 0.5);
+  color: rgb(66, 69, 86);
+  font-weight: bold;
+  border-radius: 5px;
+  border-color: rgb(230, 230, 230);
+}
+
+/* =========== END LOGIN + HOME + TERMS STYLES ============= */
+
+/* =========== BEGIN CLIENT + SOLAR SIZING STYLES ========== */
+
+.clientDetails {
+  font-weight: bold;
+  text-align: left;
+  padding-bottom: 20px;
+}
+
+.sizingDetails {
+  padding-bottom: 10px;
+  font-size: 15px;
+  color: rgb(66, 69, 86);
+  font-weight: 100;
+}
+
+.sizingOptions {
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 0;
+    padding: 5px 5px;
+    width: 220px;
+    height: 30px;
+    font-size: 15px;
+    border-radius: 5px;
+    border-color: rgb(230, 230, 230);
+}
+
+.sizingNoOptions {
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 0;
+    padding: 5px 5px;
+    width: 220px;
+    height: 30px;
+    font-size: 15px;
+    border-radius: 5px;
+    border-color: rgb(230, 230, 230);
+    background-color: rgb(211, 204, 204);
+}
+
+.solarsize-btn {
+  font-size: 15px;
+  padding: 5px 30px;
+  text-align: center;
+  text-shadow: 0 0.05rem 0.1rem rgb(1, 22, 1);
+  color: green;
+  background-size: cover;
+  background-color: rgb(207, 241, 207);
+  font-weight: 100;
+  width: 130px;
+  border-radius: 5px;
+  border-color: rgb(230, 230, 230);
+}
+
+.totalSystemValues {
+    display: flex;
+}
+.totalInvPower {
+    flex: 30%;
+}
+.totalSolarPower {
+    flex: 30%;
+}
+.totalBattPower {
+    flex: 30%;
+}
+
+
+/* ===================================== END CLIENT + SOLAR SIZING STYLES ========================================== */

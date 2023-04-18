@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+
+<div class="dashcontainer">
+  <div class="emptySide"></div>
+  <div class="mainSide">
+    <div class="clientDetails">Sizing Details by Monthly Bill</div>
+
+    <div class="sizingDetails" >
+      Client ID: <%= clientDetails[0].clientID %>
+    </div>
+    <div class="sizingDetails" >
+        Client Name: <%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %>
+      </div>
+    <div class="sizingDetails">
+      Estimated Power Required: <%= powerSizing[0].load_watts %> 
+    </div>
+    <div class="sizingDetails">
+        Phase Type: <%= powerSizing[0].output_phase %> Phase
+    </div>
+    <br />
+
+    <form action="/sizingByBillBatteries" method="POST">
+      <label for="inverterOption">Inverters</label><br />
+      <select name="inverterOption" id="inverterOption" class="sizingOptions" >
+        <% for (var i = 0; i < inverters.length; i++) { %>
+        <option value=<%= inverters[i].inverter_model %>><%= inverters[i].inverter_model %></option>
+        <% } %>
+      </select>
+      <br />
+      <label for="inverterPower">Inverter Power</label><br />
+      <input
+        class="sizingNoOptions"
+        type="number"
+        id="inverterPower"
+        name="inverterPower"
+        value="0"
+        readonly
+        /><br />
+      <label for="inverterOptionPcs">Number of Inverters</label><br />
+      <select name="inverterOptionPcs" id="inverterOptionPcs" class="sizingOptions">
+        <% for (var i = 0; i <= 10; i++) { %>
+        <option value=<%= i %>><%= i %></option>
+        <% } %>
+      </select>
+      <br />
+      <label for="calculatedPower">System Power</label><br />
+      <input
+        class="sizingNoOptions"
+        type="number"
+        id="calculatedPower"
+        name="calculatedPower"
+        value="0"
+        readonly
+        /><br />
+
+      <div class="sizingDetails">
+        Power: 
+      </div>
+      <label for="currentPhase">Phase Type</label><br />
+      <select name="currentPhase" id="currentPhase" class="sizingOptions">
+        <option value="1">Single Phase</option>
+        <option value="3">Three Phase</option>
+      </select>
+      <br /><br />
+
+
+      <button type="submit" id="solarsize-btn" class="solarsize-btn">
+        SUBMIT
+      </button>
+      <button
+        type="submit"
+        id="logout-btn"
+        class="loginbtn"
+        formaction="/logout"
+        formmethod="get">
+        LOG OUT
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
