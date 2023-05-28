@@ -331,7 +331,7 @@ app.post("/sizingByBillPanel", function (req, res) {
   var panelOption = req.body.panelOption;
   var panelOptionPcs = req.body.panelOptionPcs;
   var calculatedSolarPower = req.body.calculatedSolarPower;
-  
+
   var batteryOption = req.body.batteryOption;
   var batteryOptionPcs = req.body.batteryOptionPcs;
   var calculatedBattEnergy = req.body.calculatedBattEnergy;
@@ -341,7 +341,15 @@ app.post("/sizingByBillPanel", function (req, res) {
       "INSERT INTO clientPowerSizings (system_supply_watts, recommended_inverter, pcs_of_inverter, recommended_battery, pcs_of_battery, recommended_panel, pcs_of_panel) VALUES (?,?,?,?,?,?,?)";
     connection.query(
       q,
-      [calculatedInvPower, inverterOption, inverterOptionPcs, batteryOption, batteryOptionPcs, panelOption, panelOptionPcs],
+      [
+        calculatedInvPower,
+        inverterOption,
+        inverterOptionPcs,
+        batteryOption,
+        batteryOptionPcs,
+        panelOption,
+        panelOptionPcs,
+      ],
       function (error, results) {
         if (error) throw error;
       }
