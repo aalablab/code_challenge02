@@ -5,11 +5,18 @@
   <div class="mainSide">
     <div class="clientDetails">Sizing Details by Monthly Bill:</div>
 
-    <div class="clientDetails">
-      <% if(wasClientCreated == false){ %> There is an error: <%= errors %> <% }
-      else{ %> for Client ID #: <%= clientDetails[0].clientID %> with Name: <%=
-      clientDetails[0].firstname %> <%= clientDetails[0].lastname %> <% } %>
-    </div>
+    <% if (errors) { %>
+    <div class="errorNotification"><%= errors %></div>
+    <% } %> <% if(wasClientCreated == false){ %>
+    <div class="errorNotification">Client details was not created</div>
+    <% } else{ %> Client ID:
+    <span class="clientDetails"><%= clientDetails[0].clientID %></span>
+    <br />
+    Name:
+    <span class="clientDetails"
+      ><%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %></span
+    >
+    <% } %> <br /><br />
 
     <form action="/suggestInverterByBill" method="POST">
       <label for="monthlyBill">Average Monthly Bill (Php)</label><br />
@@ -17,10 +24,9 @@
         class="standard_field"
         type="number"
         id="monthlyBill"
-        name="monthlyBill"
-        required /><br />
+        name="monthlyBill" /><br />
       <label for="currentPhase">Phase Type</label><br />
-      <select name="currentPhase" id="currentPhase" class="loginField">
+      <select name="currentPhase" id="currentPhase" class="standard_field">
         <option value="1">Single Phase</option>
         <option value="3">Three Phase</option>
       </select>
@@ -31,11 +37,11 @@
       </button>
       <button
         type="submit"
-        id="logout-btn"
+        id="cancel-btn"
         class="standard_btn"
-        formaction="/logout"
-        formmethod="get">
-        LOG OUT
+        formaction="/cancelCreateClient"
+        formmethod="post">
+        CANCEL
       </button>
     </form>
   </div>

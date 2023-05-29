@@ -74,7 +74,7 @@ app.post("/signin", function (req, res) {
   if (Number.isInteger(req.session.userID)) {
     var q = "SELECT * FROM installers WHERE installerID = ?";
     connection.query(q, req.session.userID, function (error, results, fields) {
-      if (error) throw error;
+      if (error) throw error; //Show error in the backend (not on the clientside)
       if (results.length == 0) {
         req.session.errors = "Cannot find your profile. Contact Warren.";
         req.session.loginOK = false;
@@ -169,7 +169,7 @@ app.get("/clientList", function (req, res) {
     var q =
       "SELECT * FROM clients WHERE workstatus = 'pending' ORDER BY firstname ASC";
     connection.query(q, function (error, results, fields) {
-      if (error) throw error;
+      if (error) throw error; //Show error in the backend (not on the clientside)
 
       if (results[0] != null) {
         req.session.clientList = results;
@@ -200,77 +200,118 @@ app.post("/createClient", function (req, res) {
       clientNumber == "" ||
       clientCity == ""
     ) {
-      req.session.errors =
-        "All fields are required, ensure you completely fill up all details.";
       res.render("clientList", {
-        errors: req.session.errors,
+        errors:
+          "All fields are required, ensure you completely fill up all details.",
       });
     } else {
-      //Insert client details to the database.
-      var q =
-        "INSERT INTO clients (firstname, lastname, mobilenum, location_city, sizing_method) VALUES (?,?,?,?,?)";
-      connection.query(
-        q,
-        [
-          clientFirstName,
-          clientLastName,
-          clientNumber,
-          clientCity,
-          clientMethod,
-        ],
-        function (error, results) {
-          if (error) throw error;
-        }
-      );
-
+      // Check if client already exist
       var q1 =
-        "SELECT * from clients where firstname = ? AND lastname = ? AND mobilenum = ? AND location_city = ?";
+        "SELECT * FROM clients where firstname = ? AND lastname = ? AND mobilenum = ?";
       connection.query(
         q1,
-        [clientFirstName, clientLastName, clientNumber, clientCity],
+        [clientFirstName, clientLastName, clientNumber],
         function (error, results, fields) {
-          if (error) throw error;
+          if (error) throw error; //Show error in the backend (not on the clientside)
 
-          if (results[0] == null) {
-            req.session.errors = "NO CLIENT WAS CREATED.";
-            req.session.wasClientCreated = false;
+          if (results.length > 0) {
+            res.render("clientList", {
+              errors: "Client already exist.",
+            });
           } else {
-            req.session.clientDetails = results;
-            req.session.clientID = results[0].clientID;
-            req.session.wasClientCreated = true;
-          }
-          req.session.wereInvertersFetch = false;
+            //Insert client details to the database.
+            var q2 =
+              "INSERT INTO clients (firstname, lastname, mobilenum, location_city, sizing_method) VALUES (?,?,?,?,?)";
+            connection.query(
+              q2,
+              [
+                clientFirstName,
+                clientLastName,
+                clientNumber,
+                clientCity,
+                clientMethod,
+              ],
+              function (error, results) {
+                if (error) throw error; //Show error in the backend (not on the clientside)
+                req.session.clientID = results.insertId;
 
-          if (req.session.clientDetails[0].sizing_method == "monthly bill") {
-            res.render("sizingDetailsByBill", {
-              errors: req.session.errors,
-              wasClientCreated: req.session.wasClientCreated,
-              wereInvertersFetch: req.session.wereInvertersFetch,
-              clientDetails: req.session.clientDetails,
-            });
-          } else if (
-            req.session.clientDetails[0].sizing_method == "appliances list"
-          ) {
-            res.render("sizingDetailsByAppliance", {
-              errors: req.session.errors,
-              wasClientCreated: req.session.wasClientCreated,
-              wereInvertersFetch: req.session.wereInvertersFetch,
-              clientDetails: req.session.clientDetails,
-            });
-          } else if (
-            req.session.clientDetails[0].sizing_method == "known power kW" ||
-            req.session.clientDetails[0].sizing_method == "other methods"
-          ) {
-            res.render("sizingDetailsByKW", {
-              errors: req.session.errors,
-              wasClientCreated: req.session.wasClientCreated,
-              wereInvertersFetch: req.session.wereInvertersFetch,
-              clientDetails: req.session.clientDetails,
-            });
+                var q3 = "SELECT * FROM clients where clientID = ?";
+                connection.query(
+                  q3,
+                  req.session.clientID,
+                  function (error, results, fields) {
+                    if (error) throw error; //Show error in the backend (not on the clientside)
+
+                    if (results[0] == null) {
+                      req.session.errors = "NO CLIENT WAS CREATED.";
+                      req.session.wasClientCreated = false;
+                    } else {
+                      req.session.clientDetails = results;
+                      req.session.wasClientCreated = true;
+                    }
+                    req.session.wereInvertersFetch = false;
+
+                    if (
+                      req.session.clientDetails[0].sizing_method ==
+                      "monthly bill"
+                    ) {
+                      res.render("sizingDetailsByBill", {
+                        errors: req.session.errors,
+                        wasClientCreated: req.session.wasClientCreated,
+                        wereInvertersFetch: req.session.wereInvertersFetch,
+                        clientDetails: req.session.clientDetails,
+                      });
+                    } else if (
+                      req.session.clientDetails[0].sizing_method ==
+                      "appliances list"
+                    ) {
+                      res.render("sizingDetailsByAppliance", {
+                        errors: req.session.errors,
+                        wasClientCreated: req.session.wasClientCreated,
+                        wereInvertersFetch: req.session.wereInvertersFetch,
+                        clientDetails: req.session.clientDetails,
+                      });
+                    } else if (
+                      req.session.clientDetails[0].sizing_method ==
+                        "known power kW" ||
+                      req.session.clientDetails[0].sizing_method ==
+                        "other methods"
+                    ) {
+                      res.render("sizingDetailsByKW", {
+                        errors: req.session.errors,
+                        wasClientCreated: req.session.wasClientCreated,
+                        wereInvertersFetch: req.session.wereInvertersFetch,
+                        clientDetails: req.session.clientDetails,
+                      });
+                    }
+                  }
+                );
+              }
+            );
           }
         }
       );
     }
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.post("/cancelCreateClient", function (req, res) {
+  let v_sessionUsr = req.session.user;
+
+  if (v_sessionUsr) {
+    var q = "DELETE FROM clients where clientID = ? ";
+    connection.query(
+      q,
+      [req.session.clientID],
+      function (error, results, fields) {
+        if (error) throw error; //Show error in the backend (not on the clientside)
+        res.render("clientList", {
+          errors: "Solar Sizing was Cancelled and the Client was deleted.",
+        });
+      }
+    );
   } else {
     res.redirect("/");
   }
@@ -284,58 +325,66 @@ app.post("/suggestInverterByBill", function (req, res) {
   var clientMethod = req.session.clientMethod;
 
   if (v_sessionUsr) {
-    estimatedPower = Math.round(monthlyBill / 1000) * 1000;
-    var q =
-      "INSERT INTO clientPowerSizings (clientID, load_type, load_watts, output_phase) VALUES (?,?,?,?)";
-    connection.query(
-      q,
-      [clientID, clientMethod, estimatedPower, currentPhase],
-      function (error, results) {
-        if (error) throw error;
-      }
-    );
+    if (monthlyBill == "") {
+      res.render("sizingDetailsByBill", {
+        errors: "Monthly bill is required for calculation.",
+        wasClientCreated: req.session.wasClientCreated,
+        clientDetails: req.session.clientDetails,
+      });
+    } else {
+      estimatedPower = Math.round(monthlyBill / 1000) * 1000;
+      var q =
+        "INSERT INTO clientPowerSizings (clientID, load_type, load_watts, output_phase) VALUES (?,?,?,?)";
+      connection.query(
+        q,
+        [clientID, clientMethod, estimatedPower, currentPhase],
+        function (error, results) {
+          if (error) throw error; //Show error in the backend (not on the clientside)
+        }
+      );
 
-    var q1 =
-      "SELECT * from clientPowerSizings where clientID = ? AND load_watts = ?";
-    connection.query(
-      q1,
-      [clientID, estimatedPower],
-      function (error, results, fields) {
-        if (error) throw error;
-        req.session.powerSizing = results;
+      var q1 =
+        "SELECT * FROM clientPowerSizings where clientID = ? AND load_watts = ?";
+      connection.query(
+        q1,
+        [clientID, estimatedPower],
+        function (error, results, fields) {
+          if (error) throw error; //Show error in the backend (not on the clientside)
+          req.session.powerSizing = results;
 
-        var q2 = "SELECT * from inverters";
-        connection.query(q2, function (error, results, fields) {
-          if (error) throw error;
-          req.session.inverters = results;
+          var q2 = "SELECT * FROM inverters";
+          connection.query(q2, function (error, results, fields) {
+            if (error) throw error; //Show error in the backend (not on the clientside)
+            req.session.inverters = results;
 
-          var q3 = "SELECT * from solarpanels";
-          connection.query(q3, function (error, results, fields) {
-            if (error) throw error;
-            req.session.solarpanels = results;
+            var q3 = "SELECT * FROM solarpanels";
+            connection.query(q3, function (error, results, fields) {
+              if (error) throw error; //Show error in the backend (not on the clientside)
+              req.session.solarpanels = results;
 
-            var q4 = "SELECT * from batteries";
-            connection.query(q4, function (error, results, fields) {
-              if (error) throw error;
-              req.session.batteries = results;
+              var q4 = "SELECT * FROM batteries";
+              connection.query(q4, function (error, results, fields) {
+                if (error) throw error; //Show error in the backend (not on the clientside)
+                req.session.batteries = results;
 
-              req.session.wereInvertersFetch = true;
+                req.session.wereInvertersFetch = true;
 
-              res.render("sizingByBillInverter", {
-                errors: req.session.errors,
-                wasClientCreated: req.session.wasClientCreated,
-                wereInvertersFetch: req.session.wereInvertersFetch,
-                clientDetails: req.session.clientDetails,
-                powerSizing: req.session.powerSizing,
-                inverters: req.session.inverters,
-                solarpanels: req.session.solarpanels,
-                batteries: req.session.batteries,
+                res.render("sizingByBillInverter", {
+                  errors: req.session.errors,
+                  wasClientCreated: req.session.wasClientCreated,
+                  wereInvertersFetch: req.session.wereInvertersFetch,
+                  clientDetails: req.session.clientDetails,
+                  powerSizing: req.session.powerSizing,
+                  inverters: req.session.inverters,
+                  solarpanels: req.session.solarpanels,
+                  batteries: req.session.batteries,
+                });
               });
             });
           });
-        });
-      }
-    );
+        }
+      );
+    }
   } else {
     res.redirect("/");
   }
@@ -370,7 +419,7 @@ app.post("/sizingByBillPanel", function (req, res) {
         panelOptionPcs,
       ],
       function (error, results) {
-        if (error) throw error;
+        if (error) throw error; //Show error in the backend (not on the clientside)
       }
     );
   } else {
