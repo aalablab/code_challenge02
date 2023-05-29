@@ -3,27 +3,55 @@
 <div class="dashcontainer">
   <div class="emptySide"></div>
   <div class="mainSide">
-    <div class="clientDetails">Sizing Details by Monthly Bill</div>
-
-    <div class="sizingDetails">
-      Client ID: <%= clientDetails[0].clientID %>
+    <div class="energyDistribution">
+      <div class="requiredEnergy">
+        <div class="clientDetails">Sizing Details by Monthly Bill</div>
+        <div class="sizingDetails">
+          Client ID: <%= clientDetails[0].clientID %>
+        </div>
+        <div class="sizingDetails">
+          Client Name: <%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %>
+        </div>
+        <div class="sizingDetails">
+          Monthly Bill: <%= powerSizing[0].monthly_bill %>
+        </div>
+        <div class="sizingDetails">
+          Local Energy Price per kWh <%= powerSizing[0].local_energy_price %>
+        </div>
+        <div class="sizingDetails">
+          Estimated System Power Required: <span class="powerenergyRequired"> <%= powerSizing[0].req_power_kw %> </span>
+        </div>
+        <div class="sizingDetails">
+          Phase Type: <%= powerSizing[0].output_phase %> Phase
+        </div>
+        <div class="sizingDetails">
+          <% if (powerSizing[0].netmeter_use_yesno == 0) { %>
+          Netmeter: No
+          <% } else { %>
+          Netmeter: Yes
+          <% } %>
+        </div>
+        <div class="sizingDetails">
+          Required Full Day Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_fullday_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Required Daytime Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Required Nighttime Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span>
+        </div>
+        <label for="pvsystem_type">PV System Type</label><br />
+        <select name="pvsystem_type" id="pvsystem_type" class="standard_field" onchange="pvsystem_type()">
+          <option value="gridtie">Grid-tie</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="offgrid">Off-Grid</option>
+        </select>
+      </div>
+      <div class="selectedEnergy">
+        Selected Energy
+      </div>
+      <div class="predictedResults">Results</div>
     </div>
-    <div class="sizingDetails">
-      Client Name: <%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %>
-    </div>
-    <div class="sizingDetails">
-      Monthly Bill: <%= powerSizing[0].monthly_bill %>
-    </div>
-    <div class="sizingDetails">
-      Local Energy Price per kWh <%= powerSizing[0].local_energy_price %>
-    </div>
-    <div class="sizingDetails">
-      Estimated System Power Required: <span class="powerRequired"> <%= powerSizing[0].req_power_kw %> </span>
-    </div>
-    <div class="sizingDetails">
-      Phase Type: <%= powerSizing[0].output_phase %> Phase
-    </div>
-    <br />
 
     <form action="/sizingByBillPanel" method="POST">
       <div class="totalSystemValues">
@@ -61,7 +89,7 @@
           <input class="standard_greyed_field" type="number" id="calculatedSolarPower" name="calculatedSolarPower" value="0" readonly /><br />
           <br />
         </div>
-        <div class="totalBattPower">
+        <div id="selectBatt" class="totalBattPower">
           <label for="batteryOption">Batteries</label><br />
           <select name="batteryOption" id="batteryOption" class="standard_field" onchange="calcBattEnergy()">
             <% for (var i = 0; i < batteries.length; i++) { %>

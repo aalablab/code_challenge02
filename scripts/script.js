@@ -18,6 +18,14 @@ function calcNightUse() {
   document.getElementById("nighttimeUsePercent").value = nightUse;
 }
 
+function pvsystem_type() {
+  if ((document.getElementById("selectBatt").value = "gridtie")) {
+    document.getElementById("selectBatt").style.display = "None";
+  } else {
+    document.getElementById("selectBatt").style.display = "block";
+  }
+}
+
 function calcInvPower() {
   var inverterPower = document.getElementById("inverterOption").value;
   var numberOfPieces = document.getElementById("inverterOptionPcs").value;

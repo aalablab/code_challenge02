@@ -148,28 +148,30 @@ label {
   font-weight: 100;
 }
 
-.powerRequired {
+.powerenergyRequired {
   padding-bottom: 10px;
   font-size: 16px;
   color: red;
   font-weight: bold;
 }
 
-.sizingNoOptions {
-  margin-top: 5px;
-  margin-bottom: 20px;
-  margin-left: 0;
-  padding: 5px 5px;
-  width: 220px;
-  height: 30px;
-  font-size: 15px;
-  border-radius: 5px;
-  border-color: rgb(230, 230, 230);
-  background-color: rgb(211, 204, 204);
+.energyDistribution {
+  display: flex;
+  border-bottom: 3px solid grey;
+}
+.requiredEnergy {
+  flex: 30%;
+}
+.selectedEnergy {
+  flex: 30%;
+}
+.predictedResults {
+  flex: 30%;
 }
 
 .totalSystemValues {
   display: flex;
+  padding-top: 20px;
 }
 .totalInvPower {
   flex: 30%;
@@ -179,6 +181,9 @@ label {
 }
 .totalBattPower {
   flex: 30%;
+}
+#selectBatt {
+  display: none;
 }
 
 /* ===================================== END CLIENT + SOLAR SIZING STYLES ========================================== */
