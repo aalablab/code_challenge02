@@ -164,6 +164,7 @@ app.post("/pwordchgd", function (req, res) {
 //Size Solar and List Available Clients
 app.get("/clientList", function (req, res) {
   let v_sessionUsr = req.session.user;
+  req.session.errors = null;
 
   if (v_sessionUsr) {
     var q =
@@ -243,46 +244,40 @@ app.post("/createClient", function (req, res) {
                     if (error) throw error; //Show error in the backend (not on the clientside)
 
                     if (results[0] == null) {
-                      req.session.errors = "NO CLIENT WAS CREATED.";
-                      req.session.wasClientCreated = false;
+                      res.render("clientList", {
+                        clientList: req.session.clientList,
+                        errors: "NO CLIENT WAS CREATED.",
+                      });
                     } else {
                       req.session.clientDetails = results;
-                      req.session.wasClientCreated = true;
-                    }
-                    req.session.wereInvertersFetch = false;
 
-                    if (
-                      req.session.clientDetails[0].sizing_method ==
-                      "monthly bill"
-                    ) {
-                      res.render("sizingDetailsByBill", {
-                        errors: req.session.errors,
-                        wasClientCreated: req.session.wasClientCreated,
-                        wereInvertersFetch: req.session.wereInvertersFetch,
-                        clientDetails: req.session.clientDetails,
-                      });
-                    } else if (
-                      req.session.clientDetails[0].sizing_method ==
-                      "appliances list"
-                    ) {
-                      res.render("sizingDetailsByAppliance", {
-                        errors: req.session.errors,
-                        wasClientCreated: req.session.wasClientCreated,
-                        wereInvertersFetch: req.session.wereInvertersFetch,
-                        clientDetails: req.session.clientDetails,
-                      });
-                    } else if (
-                      req.session.clientDetails[0].sizing_method ==
-                        "known power kW" ||
-                      req.session.clientDetails[0].sizing_method ==
-                        "other methods"
-                    ) {
-                      res.render("sizingDetailsByKW", {
-                        errors: req.session.errors,
-                        wasClientCreated: req.session.wasClientCreated,
-                        wereInvertersFetch: req.session.wereInvertersFetch,
-                        clientDetails: req.session.clientDetails,
-                      });
+                      if (
+                        req.session.clientDetails[0].sizing_method ==
+                        "monthly bill"
+                      ) {
+                        res.render("sizingDetailsByBill", {
+                          errors: req.session.errors,
+                          clientDetails: req.session.clientDetails,
+                        });
+                      } else if (
+                        req.session.clientDetails[0].sizing_method ==
+                        "appliances list"
+                      ) {
+                        res.render("sizingDetailsByAppliance", {
+                          errors: req.session.errors,
+                          clientDetails: req.session.clientDetails,
+                        });
+                      } else if (
+                        req.session.clientDetails[0].sizing_method ==
+                          "known power kW" ||
+                        req.session.clientDetails[0].sizing_method ==
+                          "other methods"
+                      ) {
+                        res.render("sizingDetailsByKW", {
+                          errors: req.session.errors,
+                          clientDetails: req.session.clientDetails,
+                        });
+                      }
                     }
                   }
                 );
@@ -347,7 +342,7 @@ app.post("/suggestInverterByBill", function (req, res) {
         (monthlyBill / energyPriceRate / 30 / 4) * 1000
       );
       var q =
-        "INSERT INTO clientPowerSizings (clientID, load_type, load_watts, monthly_bill, local_energy_price, output_phase) VALUES (?,?,?,?,?,?)";
+        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase) VALUES (?,?,?,?,?,?)";
       connection.query(
         q,
         [

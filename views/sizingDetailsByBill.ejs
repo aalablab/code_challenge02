@@ -7,14 +7,13 @@
 
     <% if (errors) { %>
     <div class="errorNotification"><%= errors %></div>
-    <% } %> <% if(wasClientCreated == false){ %>
-    <div class="errorNotification">Client details was not created</div>
-    <% } else{ %> Client ID:
-    <span class="clientDetails"><%= clientDetails[0].clientID %></span>
-    <br />
+    <% } %>
+
+    Client ID:
+    <span class="clientDetails"><%= clientDetails[0].clientID %></span><br />
     Name:
     <span class="clientDetails"><%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %></span>
-    <% } %> <br /><br />
+    <br /><br />
 
     <form action="/suggestInverterByBill" method="POST">
       <label for="monthlyBill">Average Monthly Bill (Php)</label><br />
@@ -23,12 +22,25 @@
       <label for="energyPriceRate">Local Energy Price (Php/kWh)</label><br />
       <input class="standard_field" type="number" id="energyPriceRate" name="energyPriceRate" value="11.80" min="0" step="0.01" /><br />
 
+      <label for="peakSunHours">Peak Sun Hours</label><br />
+      <input class="standard_field" type="number" id="peakSunHours" name="peakSunHours" value="4.0" min="0" step="0.01" /><br />
+
+      <label for="daytimeUsePercent">Daytime Use in Percent</label><br />
+      <input class="standard_field" type="number" id="daytimeUsePercent" name="daytimeUsePercent" value="60" min="0" max="100" step="1" onchange="calcNightUse()" /><br />
+
+      <label for="nighttimeUsePercent">Night Time Use in Percent</label><br />
+      <input class="standard_greyed_field" type="number" id="nighttimeUsePercent" name="nighttimeUsePercent" value="40" readonly /><br />
+
       <label for="currentPhase">Phase Type</label><br />
       <select name="currentPhase" id="currentPhase" class="standard_field">
         <option value="1">Single Phase</option>
         <option value="3">Three Phase</option>
       </select>
       <br /><br />
+
+
+
+
 
       <button type="submit" id="solarsize-btn" class="standard_btn">
         SUBMIT

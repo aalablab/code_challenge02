@@ -12,22 +12,27 @@ function startTime() {
   var t = setTimeout(startTime, 500);
 }
 
-function calcInvPower() {
-    var inverterPower = document.getElementById("inverterOption").value;
-    var numberOfPieces = document.getElementById("inverterOptionPcs").value;
-    var totalPower = inverterPower * numberOfPieces;
-    document.getElementById("calculatedInvPower").value = totalPower;
-}
-function calcSolarPower() {
-    var solarPower = document.getElementById("panelOption").value;
-    var numberOfPieces = document.getElementById("panelOptionPcs").value;
-    var totalPower = solarPower * numberOfPieces;
-    document.getElementById("calculatedSolarPower").value = totalPower;
-}
-function calcBattEnergy() {
-    var battEnergy = document.getElementById("batteryOption").value;
-    var numberOfPieces = document.getElementById("batteryOptionPcs").value;
-    var totalEnergy = battEnergy * numberOfPieces;
-    document.getElementById("calculatedBattEnergy").value = totalEnergy;
+function calcNightUse() {
+  var daytimeUse = document.getElementById("daytimeUsePercent").value;
+  var nightUse = 100 - daytimeUse;
+  document.getElementById("nighttimeUsePercent").value = nightUse;
 }
 
+function calcInvPower() {
+  var inverterPower = document.getElementById("inverterOption").value;
+  var numberOfPieces = document.getElementById("inverterOptionPcs").value;
+  var totalPower = inverterPower * numberOfPieces;
+  document.getElementById("calculatedInvPower").value = totalPower;
+}
+function calcSolarPower() {
+  var solarPower = document.getElementById("panelOption").value;
+  var numberOfPieces = document.getElementById("panelOptionPcs").value;
+  var totalPower = solarPower * numberOfPieces;
+  document.getElementById("calculatedSolarPower").value = totalPower;
+}
+function calcBattEnergy() {
+  var battEnergy = document.getElementById("batteryOption").value;
+  var numberOfPieces = document.getElementById("batteryOptionPcs").value;
+  var totalEnergy = battEnergy * numberOfPieces;
+  document.getElementById("calculatedBattEnergy").value = totalEnergy;
+}

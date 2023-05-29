@@ -18,7 +18,7 @@
       Local Energy Price per kWh <%= powerSizing[0].local_energy_price %>
     </div>
     <div class="sizingDetails">
-      Estimated Power Required: <span class="powerRequired"> <%= powerSizing[0].load_watts %> </span>
+      Estimated System Power Required: <span class="powerRequired"> <%= powerSizing[0].req_power_kw %> </span>
     </div>
     <div class="sizingDetails">
       Phase Type: <%= powerSizing[0].output_phase %> Phase
@@ -40,7 +40,7 @@
             <option value=<%= i %>><%= i %></option>
             <% } %>
           </select><br />
-          <label for="calculatedInvPower">Total System Power (Watts)</label><br />
+          <label for="calculatedInvPower">AC Power Output (Watts)</label><br />
           <input class="sizingNoOptions" type="number" id="calculatedInvPower" name="calculatedInvPower" value="0" readonly /><br />
           <br />
         </div>
