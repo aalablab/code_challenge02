@@ -4,25 +4,35 @@
   <div class="emptySide"></div>
   <div class="mainSide">
     <form action="/pwordchgd" method="POST">
-      <div class="errorNotification" >
+      <div class="errorNotification">
         <% if (pwordchgd == false) { %> <%= errors %> <% } %>
       </div>
       <label for="oldpw">Old Password:</label><br />
-      <input type="password" id="oldpw" name="oldpw" class="loginField" /><br />
+      <input
+        type="password"
+        id="oldpw"
+        name="oldpw"
+        class="standard_field" /><br />
       <label for="newpw" class="block">New Password:</label><br />
-      <input type="password" id="newpw" name="newpw" class="loginField" /><br />
+      <input
+        type="password"
+        id="newpw"
+        name="newpw"
+        class="standard_field" /><br />
       <label for="newpwConfirm" class="block">Confirm New Password:</label
       ><br />
       <input
         type="password"
         id="newpwConfirm"
         name="newpwConfirm"
-        class="loginField" /><br /><br />
-      <button type="submit" id="confirm-btn" class="loginbtn">CONFIRM</button>
+        class="standard_field" /><br /><br />
+      <button type="submit" id="confirm-btn" class="standard_btn">
+        CONFIRM
+      </button>
       <button
         type="submit"
         id="logout-btn"
-        class="loginbtn"
+        class="standard_btn"
         formaction="/logout"
         formmethod="GET">
         LOG OUT

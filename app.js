@@ -194,64 +194,83 @@ app.post("/createClient", function (req, res) {
   req.session.clientMethod = clientMethod;
 
   if (v_sessionUsr) {
-    //Insert client details to the database.
-    var q =
-      "INSERT INTO clients (firstname, lastname, mobilenum, location_city, sizing_method) VALUES (?,?,?,?,?)";
-    connection.query(
-      q,
-      [clientFirstName, clientLastName, clientNumber, clientCity, clientMethod],
-      function (error, results) {
-        if (error) throw error;
-      }
-    );
-
-    var q1 =
-      "SELECT * from clients where firstname = ? AND lastname = ? AND mobilenum = ? AND location_city = ?";
-    connection.query(
-      q1,
-      [clientFirstName, clientLastName, clientNumber, clientCity],
-      function (error, results, fields) {
-        if (error) throw error;
-
-        if (results[0] == null) {
-          req.session.errors = "NO CLIENT WAS CREATED.";
-          req.session.wasClientCreated = false;
-        } else {
-          req.session.clientDetails = results;
-          req.session.clientID = results[0].clientID;
-          req.session.wasClientCreated = true;
+    if (
+      clientFirstName == "" ||
+      clientLastName == "" ||
+      clientNumber == "" ||
+      clientCity == ""
+    ) {
+      req.session.errors =
+        "All fields are required, ensure you completely fill up all details.";
+      res.render("clientList", {
+        errors: req.session.errors,
+      });
+    } else {
+      //Insert client details to the database.
+      var q =
+        "INSERT INTO clients (firstname, lastname, mobilenum, location_city, sizing_method) VALUES (?,?,?,?,?)";
+      connection.query(
+        q,
+        [
+          clientFirstName,
+          clientLastName,
+          clientNumber,
+          clientCity,
+          clientMethod,
+        ],
+        function (error, results) {
+          if (error) throw error;
         }
-        req.session.wereInvertersFetch = false;
+      );
 
-        if (req.session.clientDetails[0].sizing_method == "monthly bill") {
-          res.render("sizingDetailsByBill", {
-            errors: req.session.errors,
-            wasClientCreated: req.session.wasClientCreated,
-            wereInvertersFetch: req.session.wereInvertersFetch,
-            clientDetails: req.session.clientDetails,
-          });
-        } else if (
-          req.session.clientDetails[0].sizing_method == "appliances list"
-        ) {
-          res.render("sizingDetailsByAppliance", {
-            errors: req.session.errors,
-            wasClientCreated: req.session.wasClientCreated,
-            wereInvertersFetch: req.session.wereInvertersFetch,
-            clientDetails: req.session.clientDetails,
-          });
-        } else if (
-          req.session.clientDetails[0].sizing_method == "known power kW" ||
-          req.session.clientDetails[0].sizing_method == "other methods"
-        ) {
-          res.render("sizingDetailsByKW", {
-            errors: req.session.errors,
-            wasClientCreated: req.session.wasClientCreated,
-            wereInvertersFetch: req.session.wereInvertersFetch,
-            clientDetails: req.session.clientDetails,
-          });
+      var q1 =
+        "SELECT * from clients where firstname = ? AND lastname = ? AND mobilenum = ? AND location_city = ?";
+      connection.query(
+        q1,
+        [clientFirstName, clientLastName, clientNumber, clientCity],
+        function (error, results, fields) {
+          if (error) throw error;
+
+          if (results[0] == null) {
+            req.session.errors = "NO CLIENT WAS CREATED.";
+            req.session.wasClientCreated = false;
+          } else {
+            req.session.clientDetails = results;
+            req.session.clientID = results[0].clientID;
+            req.session.wasClientCreated = true;
+          }
+          req.session.wereInvertersFetch = false;
+
+          if (req.session.clientDetails[0].sizing_method == "monthly bill") {
+            res.render("sizingDetailsByBill", {
+              errors: req.session.errors,
+              wasClientCreated: req.session.wasClientCreated,
+              wereInvertersFetch: req.session.wereInvertersFetch,
+              clientDetails: req.session.clientDetails,
+            });
+          } else if (
+            req.session.clientDetails[0].sizing_method == "appliances list"
+          ) {
+            res.render("sizingDetailsByAppliance", {
+              errors: req.session.errors,
+              wasClientCreated: req.session.wasClientCreated,
+              wereInvertersFetch: req.session.wereInvertersFetch,
+              clientDetails: req.session.clientDetails,
+            });
+          } else if (
+            req.session.clientDetails[0].sizing_method == "known power kW" ||
+            req.session.clientDetails[0].sizing_method == "other methods"
+          ) {
+            res.render("sizingDetailsByKW", {
+              errors: req.session.errors,
+              wasClientCreated: req.session.wasClientCreated,
+              wereInvertersFetch: req.session.wereInvertersFetch,
+              clientDetails: req.session.clientDetails,
+            });
+          }
         }
-      }
-    );
+      );
+    }
   } else {
     res.redirect("/");
   }

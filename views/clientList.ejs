@@ -3,53 +3,53 @@
 <div class="dashcontainer">
   <div class="emptySide"></div>
   <div class="mainSide">
-    <div class="clientDetails">SOLAR SIZING: Enter Client Details</div>
+    <% if (errors) { %>
+    <div class="errorNotification"><%= errors %></div>
+    <% } %>
+
+    <div class="clientDetails">Client Details</div>
 
     <form action="/createClient" method="POST">
       <label for="clientFirstName">First Name</label><br />
       <input
-        class="loginField"
+        class="standard_field"
         type="text"
         id="clientFirstName"
-        name="clientFirstName"
-        required /><br />
+        name="clientFirstName" /><br />
       <label for="clientLastName">Last Name</label><br />
       <input
-        class="loginField"
+        class="standard_field"
         type="text"
         id="clientLastName"
-        name="clientLastName"
-        required /><br />
+        name="clientLastName" /><br />
       <label for="clientNumber">Mobile Number</label><br />
       <input
-        class="loginField"
+        class="standard_field"
         type="text"
         id="clientNumber"
-        name="clientNumber"
-        required /><br />
+        name="clientNumber" /><br />
       <label for="clientCity">Location City</label><br />
       <input
-        class="loginField"
+        class="standard_field"
         type="text"
         id="clientCity"
-        name="clientCity"
-        required /><br />
+        name="clientCity" /><br />
       <label for="clientMethod">Sizing Method</label><br />
-      <select name="clientMethod" id="clientMethod" class="loginField">
+      <select name="clientMethod" id="clientMethod" class="standard_field">
         <option value="monthly bill">Monthly Bill</option>
         <option value="appliances list">Appliances List</option>
         <option value="known power kW">Known Power in kW</option>
         <option value="other methods">Other Methods</option></select
       ><br /><br />
 
-      <button type="submit" id="solarsize-btn" class="solarsize-btn">
+      <button type="submit" id="solarsize-btn" class="standard_btn">
         SUBMIT
       </button>
 
       <button
         type="submit"
         id="logout-btn"
-        class="loginbtn"
+        class="standard_btn"
         formaction="/logout"
         formmethod="get">
         LOG OUT
