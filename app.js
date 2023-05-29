@@ -325,8 +325,12 @@ app.post("/cancelCreateClient", function (req, res) {
 app.post("/suggestInverterByBill", function (req, res) {
   let v_sessionUsr = req.session.user;
   var monthlyBill = req.body.monthlyBill;
-  var currentPhase = req.body.currentPhase;
   var energyPriceRate = req.body.energyPriceRate;
+  var peakSunHours = req.body.peakSunHours;
+  var daytimeUsePercent = req.body.daytimeUsePercent / 100;
+  var nighttimeUsePercent = req.body.nighttimeUsePercent / 100;
+  var currentPhase = req.body.currentPhase;
+  var netmeterUse = req.body.netmeterUse;
   var clientID = req.session.clientID;
   var clientMethod = req.session.clientMethod;
 
@@ -338,11 +342,20 @@ app.post("/suggestInverterByBill", function (req, res) {
         clientDetails: req.session.clientDetails,
       });
     } else {
-      estimatedPower = Math.round(
-        (monthlyBill / energyPriceRate / 30 / 4) * 1000
-      );
+      var monthly_consumption_kwh = Math.round(monthlyBill / energyPriceRate);
+      var estimatedPower =
+        Math.round((monthlyBill / energyPriceRate / 30 / 4) * 100) / 100;
+      var req_fullday_energy_kwh =
+        Math.round((monthlyBill / energyPriceRate / 30) * 100) / 100;
+      var req_daytime_energy_kwh =
+        Math.round(
+          (monthlyBill / energyPriceRate / 30) * daytimeUsePercent * 100
+        ) / 100;
+      var req_nighttime_energy_kwh =
+        Math.round((req_fullday_energy_kwh - req_daytime_energy_kwh) * 100) /
+        100;
       var q =
-        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase) VALUES (?,?,?,?,?,?)";
+        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase, peak_sun_hours, daytime_use_percent, nighttime_use_percent, netmeter_use_yesno, monthly_consumption_kwh, req_fullday_energy_kwh, req_daytime_energy_kwh, req_nighttime_energy_kwh) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       connection.query(
         q,
         [
@@ -352,6 +365,14 @@ app.post("/suggestInverterByBill", function (req, res) {
           monthlyBill,
           energyPriceRate,
           currentPhase,
+          peakSunHours,
+          daytimeUsePercent,
+          nighttimeUsePercent,
+          netmeterUse,
+          monthly_consumption_kwh,
+          req_fullday_energy_kwh,
+          req_daytime_energy_kwh,
+          req_nighttime_energy_kwh,
         ],
         function (error, results) {
           if (error) throw error; //Show error in the backend (not on the clientside)
