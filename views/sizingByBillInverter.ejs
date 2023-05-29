@@ -12,7 +12,13 @@
       Client Name: <%= clientDetails[0].firstname %> <%= clientDetails[0].lastname %>
     </div>
     <div class="sizingDetails">
-      Estimated Power Required: <%= powerSizing[0].load_watts %>
+      Monthly Bill: <%= powerSizing[0].monthly_bill %>
+    </div>
+    <div class="sizingDetails">
+      Local Energy Price per kWh <%= powerSizing[0].local_energy_price %>
+    </div>
+    <div class="sizingDetails">
+      Estimated Power Required: <span class="powerRequired"> <%= powerSizing[0].load_watts %> </span>
     </div>
     <div class="sizingDetails">
       Phase Type: <%= powerSizing[0].output_phase %> Phase
