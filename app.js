@@ -301,15 +301,25 @@ app.post("/cancelCreateClient", function (req, res) {
   let v_sessionUsr = req.session.user;
 
   if (v_sessionUsr) {
-    var q = "DELETE FROM clients where clientID = ? ";
+    var q = "DELETE FROM clientPowerSizings where clientID = ? ";
     connection.query(
       q,
       [req.session.clientID],
       function (error, results, fields) {
         if (error) throw error; //Show error in the backend (not on the clientside)
-        res.render("clientList", {
-          errors: "Solar Sizing was Cancelled and the Client was deleted.",
-        });
+
+        var q1 = "DELETE FROM clients where clientID = ? ";
+        connection.query(
+          q1,
+          [req.session.clientID],
+          function (error, results, fields) {
+            if (error) throw error; //Show error in the backend (not on the clientside)
+            res.render("clientList", {
+              errors:
+                "Solar Sizing was cancelled and the client details were deleted.",
+            });
+          }
+        );
       }
     );
   } else {
@@ -321,6 +331,7 @@ app.post("/suggestInverterByBill", function (req, res) {
   let v_sessionUsr = req.session.user;
   var monthlyBill = req.body.monthlyBill;
   var currentPhase = req.body.currentPhase;
+  var energyPriceRate = req.body.energyPriceRate;
   var clientID = req.session.clientID;
   var clientMethod = req.session.clientMethod;
 
@@ -332,56 +343,59 @@ app.post("/suggestInverterByBill", function (req, res) {
         clientDetails: req.session.clientDetails,
       });
     } else {
-      estimatedPower = Math.round(monthlyBill / 1000) * 1000;
+      estimatedPower = Math.round(
+        (monthlyBill / energyPriceRate / 30 / 4) * 1000
+      );
       var q =
-        "INSERT INTO clientPowerSizings (clientID, load_type, load_watts, output_phase) VALUES (?,?,?,?)";
+        "INSERT INTO clientPowerSizings (clientID, load_type, load_watts, local_energy_price, output_phase) VALUES (?,?,?,?,?)";
       connection.query(
         q,
-        [clientID, clientMethod, estimatedPower, currentPhase],
+        [clientID, clientMethod, estimatedPower, energyPriceRate, currentPhase],
         function (error, results) {
           if (error) throw error; //Show error in the backend (not on the clientside)
-        }
-      );
+          req.session.clientSizingID = results.insertId;
 
-      var q1 =
-        "SELECT * FROM clientPowerSizings where clientID = ? AND load_watts = ?";
-      connection.query(
-        q1,
-        [clientID, estimatedPower],
-        function (error, results, fields) {
-          if (error) throw error; //Show error in the backend (not on the clientside)
-          req.session.powerSizing = results;
-
-          var q2 = "SELECT * FROM inverters";
-          connection.query(q2, function (error, results, fields) {
-            if (error) throw error; //Show error in the backend (not on the clientside)
-            req.session.inverters = results;
-
-            var q3 = "SELECT * FROM solarpanels";
-            connection.query(q3, function (error, results, fields) {
+          var q1 =
+            "SELECT * FROM clientPowerSizings where clientID = ? AND client_sizingID = ?";
+          connection.query(
+            q1,
+            [clientID, req.session.clientSizingID],
+            function (error, results, fields) {
               if (error) throw error; //Show error in the backend (not on the clientside)
-              req.session.solarpanels = results;
+              req.session.powerSizing = results;
 
-              var q4 = "SELECT * FROM batteries";
-              connection.query(q4, function (error, results, fields) {
+              var q2 = "SELECT * FROM inverters";
+              connection.query(q2, function (error, results, fields) {
                 if (error) throw error; //Show error in the backend (not on the clientside)
-                req.session.batteries = results;
+                req.session.inverters = results;
 
-                req.session.wereInvertersFetch = true;
+                var q3 = "SELECT * FROM solarpanels";
+                connection.query(q3, function (error, results, fields) {
+                  if (error) throw error; //Show error in the backend (not on the clientside)
+                  req.session.solarpanels = results;
 
-                res.render("sizingByBillInverter", {
-                  errors: req.session.errors,
-                  wasClientCreated: req.session.wasClientCreated,
-                  wereInvertersFetch: req.session.wereInvertersFetch,
-                  clientDetails: req.session.clientDetails,
-                  powerSizing: req.session.powerSizing,
-                  inverters: req.session.inverters,
-                  solarpanels: req.session.solarpanels,
-                  batteries: req.session.batteries,
+                  var q4 = "SELECT * FROM batteries";
+                  connection.query(q4, function (error, results, fields) {
+                    if (error) throw error; //Show error in the backend (not on the clientside)
+                    req.session.batteries = results;
+
+                    req.session.wereInvertersFetch = true;
+
+                    res.render("sizingByBillInverter", {
+                      errors: req.session.errors,
+                      wasClientCreated: req.session.wasClientCreated,
+                      wereInvertersFetch: req.session.wereInvertersFetch,
+                      clientDetails: req.session.clientDetails,
+                      powerSizing: req.session.powerSizing,
+                      inverters: req.session.inverters,
+                      solarpanels: req.session.solarpanels,
+                      batteries: req.session.batteries,
+                    });
+                  });
                 });
               });
-            });
-          });
+            }
+          );
         }
       );
     }
