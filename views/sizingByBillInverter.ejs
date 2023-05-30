@@ -117,7 +117,6 @@
             <option value=<%= solarpanels[i].panelID %>><%= solarpanels[i].Wp %></option>
             <% } %>
           </select><br />
-
           <label for="panelOptionPcs">Number of Solar Panels</label><br />
           <select name="panelOptionPcs" id="panelOptionPcs" class="standard_field" onchange="calcSolarPowerModel()">
             <% for (var i = 0; i <= 100; i++) { %>
@@ -153,7 +152,6 @@
           <br />
         </div>
       </div>
-
 
       <button type="submit" id="solarsize-btn" class="standard_btn">
         SUBMIT

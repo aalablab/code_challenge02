@@ -448,31 +448,78 @@ app.get("/selectInverterByBill", function (req, res) {
 
 app.post("/sizingByBillResults", function (req, res) {
   let v_sessionUsr = req.session.user;
-  var inverterOption = req.body.inverterOption;
+  let powerSizing = req.session.powerSizing;
+
+  var inverterModelOpt = req.body.inverterModelOpt;
   var inverterOptionPcs = req.body.inverterOptionPcs;
   var calculatedInvPower = req.body.calculatedInvPower;
+  var fulldayEnergy = calculatedInvPower * powerSizing[0].peak_sun_hours;
 
-  var panelOption = req.body.panelOption;
+  var panelModelOption = req.body.panelModelOption;
   var panelOptionPcs = req.body.panelOptionPcs;
   var calculatedSolarPower = req.body.calculatedSolarPower;
+  var fulldayPVEnergy = calculatedSolarPower * powerSizing[0].peak_sun_hours;
 
-  var batteryOption = req.body.batteryOption;
+  var systemPower = calculatedInvPower;
+  if (calculatedSolarPower < calculatedInvPower) {
+    systemPower = calculatedSolarPower;
+  }
+  if (fulldayPVEnergy < fulldayEnergy) {
+    fulldayEnergy = fulldayPVEnergy;
+  }
+
+  var batteryOptionModel = req.body.batteryOptionModel;
   var batteryOptionPcs = req.body.batteryOptionPcs;
   var calculatedBattEnergy = req.body.calculatedBattEnergy;
 
+  var availableDaytimeEnergy = 0;
+  var netmeterSellEnergy = 0;
+  var netmeterOffsetEnergy = 0;
+  if (fulldayEnergy <= powerSizing[0].req_daytime_energy_kwh) {
+    availableDaytimeEnergy = fulldayEnergy;
+    availableNighttimeEnergy = 0;
+    purchaseEnergy = powerSizing[0].req_fullday_energy_kwh - fulldayEnergy;
+  } else if (fulldayEnergy > powerSizing[0].req_daytime_energy_kwh) {
+    availableDaytimeEnergy = powerSizing[0].req_daytime_energy_kwh;
+    availableNighttimeEnergy = 0;
+  }
+
+  var purchaseEnergy = 0;
+  if (fulldayEnergy < powerSizing[0].req_daytime_energy_kwh) {
+    purchaseEnergy =
+      powerSizing[0].req_daytime_energy_kwh +
+      powerSizing[0].req_nighttime_energy_kwh -
+      fulldayEnergy;
+  } else if (fulldayEnergy < powerSizing[0].req_daytime_energy_kwh) {
+  }
+  var excessDayEnergy =
+    fulldayEnergy -
+    powerSizing[0].req_daytime_energy_kwh -
+    0.8 * calculatedBattEnergy;
+
+  if (excessDayEnergy > 0) {
+    netmeterSellEnergy = excessDayEnergy;
+    netmeterOffsetEnergy = 0.5 * netmeterSellEnergy;
+  } else {
+    purchaseEnergy = excessDayEnergy;
+  }
+
   if (v_sessionUsr) {
     var q =
-      "INSERT INTO clientPowerSizings (system_supply_watts, recommended_inverter, pcs_of_inverter, recommended_battery, pcs_of_battery, recommended_panel, pcs_of_panel) VALUES (?,?,?,?,?,?,?)";
+      "INSERT INTO clientPowerSizings (inverterID, pcs_of_inverter, selected_ac_output_power_kw, ac_output_energy_fullday, panelID, pcs_of_panel, solar_panel_kw_peak, batteryID, pcs_of_battery, battery_energy_kwh) VALUES (?,?,?,?,?,?,?,?,?,?)";
     connection.query(
       q,
       [
-        calculatedInvPower,
-        inverterOption,
+        inverterModelOpt,
         inverterOptionPcs,
-        batteryOption,
-        batteryOptionPcs,
-        panelOption,
+        calculatedInvPower,
+        fulldayEnergy,
+        panelModelOption,
         panelOptionPcs,
+        calculatedSolarPower,
+        batteryOptionModel,
+        batteryOptionPcs,
+        calculatedBattEnergy,
       ],
       function (error, results) {
         if (error) throw error; //Show error in the backend (not on the clientside)
