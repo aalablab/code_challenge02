@@ -473,13 +473,16 @@ app.post("/sizingByBillResults", function (req, res) {
   var calculatedBattEnergy = req.body.calculatedBattEnergy;
 
   var availableDaytimeEnergy = 0;
+  var availableNighttimeEnergy = 0;
   var netmeterSellEnergy = 0;
   var netmeterOffsetEnergy = 0;
   if (fulldayEnergy <= powerSizing[0].req_daytime_energy_kwh) {
     availableDaytimeEnergy = fulldayEnergy;
-    availableNighttimeEnergy = 0;
     purchaseEnergy = powerSizing[0].req_fullday_energy_kwh - fulldayEnergy;
-  } else if (fulldayEnergy > powerSizing[0].req_daytime_energy_kwh) {
+  } else if (
+    fulldayEnergy > powerSizing[0].req_daytime_energy_kwh &&
+    fulldayEnergy < 1
+  ) {
     availableDaytimeEnergy = powerSizing[0].req_daytime_energy_kwh;
     availableNighttimeEnergy = 0;
   }
