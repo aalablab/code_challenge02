@@ -135,10 +135,16 @@
             <option value=<%= batteries[i].batteryID %>> <%= batteries[i].battery_brand %> <%= batteries[i].battery_model %></option>
             <% } %>
           </select><br />
-          <label for="batteryOptionEnergy">Battery Energy</label><br />
+          <label for="batteryOptionEnergy">Battery Energy (kWh)</label><br />
           <select name="batteryOptionEnergy" id="batteryOptionEnergy" class="standard_field" onchange="calcBattEnergy()">
             <% for (var i = 0; i < batteries.length; i++) { %>
             <option value=<%= batteries[i].batteryID %>><%= batteries[i].energy_kWh %></option>
+            <% } %>
+          </select><br />
+          <label for="batteryOptionDOD">Battery DOD (Percent)</label><br />
+          <select name="batteryOptionDOD" id="batteryOptionDOD" class="standard_field" disabled>
+            <% for (var i = 0; i < batteries.length; i++) { %>
+            <option value=<%= batteries[i].batteryID %>><%= batteries[i].DOD_percent %></option>
             <% } %>
           </select><br />
           <label for="batteryOptionPcs">Number of Batteries</label><br />
@@ -147,7 +153,7 @@
             <option value=<%= i %>><%= i %></option>
             <% } %>
           </select><br />
-          <label for="calculatedBattEnergy">Total System Energy (Ah)</label><br />
+          <label for="calculatedBattEnergy">Total Battery Energy (kWh)</label><br />
           <input class="standard_greyed_field" type="number" id="calculatedBattEnergy" name="calculatedBattEnergy" value="0" readonly /><br />
           <br />
         </div>

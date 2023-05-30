@@ -85,10 +85,14 @@ function calcBattEnergyModel() {
     var e2 = document.getElementById("batteryOptionEnergy");
     e2.value = batteryID;
 
+    var e3 = document.getElementById("batteryOptionDOD");
+    e3.value = batteryID;
+
     var battEnergy = e2.options[e2.selectedIndex].text;
+    var battDOD = e3.options[e3.selectedIndex].text;
 
     var numberOfPieces = document.getElementById("batteryOptionPcs").value;
-    var totalEnergy = battEnergy * numberOfPieces;
+    var totalEnergy = (battEnergy * numberOfPieces * battDOD) / 100;
     document.getElementById("calculatedBattEnergy").value = totalEnergy;
   }
 }
@@ -104,10 +108,14 @@ function calcBattEnergy() {
     var e1 = document.getElementById("batteryOptionModel");
     e1.value = batteryID;
 
+    var e3 = document.getElementById("batteryOptionDOD");
+    e3.value = batteryID;
+
     var battEnergy = e2.options[e2.selectedIndex].text;
+    var battDOD = e3.options[e3.selectedIndex].text;
 
     var numberOfPieces = document.getElementById("batteryOptionPcs").value;
-    var totalEnergy = battEnergy * numberOfPieces;
+    var totalEnergy = (battEnergy * numberOfPieces * battDOD) / 100;
     document.getElementById("calculatedBattEnergy").value = totalEnergy;
   }
 }

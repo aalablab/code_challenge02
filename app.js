@@ -476,40 +476,54 @@ app.post("/sizingByBillResults", function (req, res) {
   var availableNighttimeEnergy = 0;
   var netmeterSellEnergy = 0;
   var netmeterOffsetEnergy = 0;
+  var purchaseEnergy = 0;
   if (fulldayEnergy <= powerSizing[0].req_daytime_energy_kwh) {
     availableDaytimeEnergy = fulldayEnergy;
     purchaseEnergy = powerSizing[0].req_fullday_energy_kwh - fulldayEnergy;
   } else if (
     fulldayEnergy > powerSizing[0].req_daytime_energy_kwh &&
-    fulldayEnergy < 1
+    fulldayEnergy < powerSizing[0].req_fullday_energy_kwh
   ) {
     availableDaytimeEnergy = powerSizing[0].req_daytime_energy_kwh;
-    availableNighttimeEnergy = 0;
+    availableNighttimeEnergy = fulldayEnergy - availableDaytimeEnergy;
+    if (availableNighttimeEnergy >= calculatedBattEnergy) {
+      netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
+      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      purchaseEnergy =
+        powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
+      availableNighttimeEnergy = calculatedBattEnergy;
+    } else {
+      purchaseEnergy =
+        powerSizing[0].req_nighttime_energy_kwh - availableNighttimeEnergy;
+    }
+  } else if (fulldayEnergy >= powerSizing[0].req_fullday_energy_kwh) {
+    availableDaytimeEnergy = powerSizing[0].req_daytime_energy_kwh;
+    availableNighttimeEnergy = fulldayEnergy - availableDaytimeEnergy;
+    if (powerSizing[0].req_nighttime_energy_kwh <= calculatedBattEnergy) {
+      netmeterSellEnergy =
+        availableNighttimeEnergy - powerSizing[0].req_nighttime_energy_kwh;
+      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      availableNighttimeEnergy = powerSizing[0].req_nighttime_energy_kwh;
+    } else {
+      netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
+      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      purchaseEnergy =
+        powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
+      availableNighttimeEnergy = calculatedBattEnergy;
+    }
   }
 
-  var purchaseEnergy = 0;
-  if (fulldayEnergy < powerSizing[0].req_daytime_energy_kwh) {
-    purchaseEnergy =
-      powerSizing[0].req_daytime_energy_kwh +
-      powerSizing[0].req_nighttime_energy_kwh -
-      fulldayEnergy;
-  } else if (fulldayEnergy < powerSizing[0].req_daytime_energy_kwh) {
-  }
-  var excessDayEnergy =
-    fulldayEnergy -
-    powerSizing[0].req_daytime_energy_kwh -
-    0.8 * calculatedBattEnergy;
-
-  if (excessDayEnergy > 0) {
-    netmeterSellEnergy = excessDayEnergy;
-    netmeterOffsetEnergy = 0.5 * netmeterSellEnergy;
-  } else {
-    purchaseEnergy = excessDayEnergy;
-  }
+  req.session.systemPower = systemPower;
+  req.session.fulldayEnergy = fulldayEnergy;
+  req.session.availableDaytimeEnergy = availableDaytimeEnergy;
+  req.session.availableNighttimeEnergy = availableNighttimeEnergy;
+  req.session.netmeterSellEnergy = netmeterSellEnergy;
+  req.session.netmeterOffsetEnergy = netmeterOffsetEnergy;
+  req.session.purchaseEnergy = purchaseEnergy;
 
   if (v_sessionUsr) {
     var q =
-      "INSERT INTO clientPowerSizings (inverterID, pcs_of_inverter, selected_ac_output_power_kw, ac_output_energy_fullday, panelID, pcs_of_panel, solar_panel_kw_peak, batteryID, pcs_of_battery, battery_energy_kwh) VALUES (?,?,?,?,?,?,?,?,?,?)";
+      "INSERT INTO clientPowerSizings (inverterID, pcs_of_inverter, selected_ac_output_power_kw, ac_output_energy_fullday, panelID, pcs_of_panel, solar_panel_kw_peak, batteryID, pcs_of_battery, battery_energy_kwh, netmeter_sellenergy_kwh, netmeter_offsetenergy_kwh, grid_purchases_energy_kwh ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
     connection.query(
       q,
       [
@@ -523,9 +537,69 @@ app.post("/sizingByBillResults", function (req, res) {
         batteryOptionModel,
         batteryOptionPcs,
         calculatedBattEnergy,
+        netmeterSellEnergy,
+        netmeterOffsetEnergy,
+        purchaseEnergy,
       ],
       function (error, results) {
         if (error) throw error; //Show error in the backend (not on the clientside)
+      }
+    );
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.get("/sizingByBillResults", function (req, res) {
+  let v_sessionUsr = req.session.user;
+  var clientID = req.session.clientID;
+
+  if (v_sessionUsr) {
+    var q1 =
+      "SELECT * FROM clientPowerSizings where clientID = ? AND client_sizingID = ?";
+    connection.query(
+      q1,
+      [clientID, req.session.clientSizingID],
+      function (error, results, fields) {
+        if (error) throw error; //Show error in the backend (not on the clientside)
+        req.session.powerSizing = results;
+        powerSizing = req.session.powerSizing;
+
+        var q2 =
+          "SELECT * FROM inverters WHERE inverter_type = ? AND output_phase = ?";
+        connection.query(
+          q2,
+          [powerSizing[0].pvsystem_type, powerSizing[0].output_phase],
+          function (error, results, fields) {
+            if (error) throw error; //Show error in the backend (not on the clientside)
+            req.session.inverters = results;
+
+            var q3 = "SELECT * FROM solarpanels";
+            connection.query(q3, function (error, results, fields) {
+              if (error) throw error; //Show error in the backend (not on the clientside)
+              req.session.solarpanels = results;
+
+              var q4 = "SELECT * FROM batteries";
+              connection.query(q4, function (error, results, fields) {
+                if (error) throw error; //Show error in the backend (not on the clientside)
+                req.session.batteries = results;
+
+                req.session.wereInvertersFetch = true;
+
+                res.render("sizingByBillInverter", {
+                  errors: req.session.errors,
+                  wasClientCreated: req.session.wasClientCreated,
+                  wereInvertersFetch: req.session.wereInvertersFetch,
+                  clientDetails: req.session.clientDetails,
+                  powerSizing: req.session.powerSizing,
+                  inverters: req.session.inverters,
+                  solarpanels: req.session.solarpanels,
+                  batteries: req.session.batteries,
+                });
+              });
+            });
+          }
+        );
       }
     );
   } else {
