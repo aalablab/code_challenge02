@@ -423,7 +423,7 @@ app.get("/selectInverterByBill", function (req, res) {
                 if (error) throw error; //Show error in the backend (not on the clientside)
                 req.session.batteries = results;
 
-                req.session.wereInvertersFetch = true;
+                req.session.wereInvertersFetch = false;
 
                 res.render("sizingByBillInverter", {
                   errors: req.session.errors,
@@ -446,7 +446,7 @@ app.get("/selectInverterByBill", function (req, res) {
   }
 });
 
-app.post("/sizingByBillPanel", function (req, res) {
+app.post("/sizingByBillResults", function (req, res) {
   let v_sessionUsr = req.session.user;
   var inverterOption = req.body.inverterOption;
   var inverterOptionPcs = req.body.inverterOptionPcs;

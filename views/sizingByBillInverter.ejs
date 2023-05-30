@@ -19,7 +19,7 @@
           Local Energy Price per kWh <%= powerSizing[0].local_energy_price %>
         </div>
         <div class="sizingDetails">
-          Estimated System Power Required: <span class="powerenergyRequired"> <%= powerSizing[0].req_power_kw %> </span>
+          Estimated System Power Required: <span class="powerenergyRequired"> <%= powerSizing[0].req_power_kw %> </span> kW
         </div>
         <div class="sizingDetails">
           Phase Type: <span class="powerenergyRequired" id="outputPhase"> <%= powerSizing[0].output_phase %></span> Phase
@@ -32,65 +32,114 @@
           <% } %>
         </div>
         <div class="sizingDetails">
-          Required Full Day Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_fullday_energy_kwh %> </span>
+          Required Full Day Energy: <span class="powerenergyRequired"> <%= powerSizing[0].req_fullday_energy_kwh %> </span> kWh
         </div>
         <div class="sizingDetails">
-          Required Daytime Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+          Required Daytime Energy: <span class="powerenergyRequired"> <%= powerSizing[0].req_daytime_energy_kwh %> </span> kWh
         </div>
         <div class="sizingDetails">
-          Required Nighttime Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span>
+          Required Nighttime Energy: <span class="powerenergyRequired"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span> kWh
         </div>
         <div class="sizingDetails">
           PV System Type: <span class="powerenergyRequired" id="pvsystemType" value="<%= powerSizing[0].pvsystem_type %>"><%=powerSizing[0].pvsystem_type%></span>
         </div>
       </div>
       <div class="selectedEnergy">
-        Selected Energy
+        <% if (wereInvertersFetch == "true") { %>
+        <div class="clientDetails">Selected Energy Size</div>
+        <div class="sizingDetails">
+          Estimated System Power Selected: <span class="powerenergySelected"> <%= powerSizing[0].req_power_kw %> </span>
+        </div>
+        <div class="sizingDetails">
+          Available Full Day Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_fullday_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Available Daytime Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Available Nighttime Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Energy that can be Sold (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+        </div>
+        <div class="sizingDetails">
+          Energy to be Purchased (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+        </div>
+        <% } %>
       </div>
-      <div class="predictedResults">Results</div>
+      <div class="predictedResults">
+        <% if (wereInvertersFetch == "true") { %>
+        <div class="clientDetails">Results</div>
+        <div class="sizingDetails">
+          Savings (Php): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+        </div>
+        <% } %>
+      </div>
     </div>
 
-    <form action="/sizingByBillPanel" method="POST">
+    <form action="/sizingByBillResults" method="POST">
       <div class="totalSystemValues">
+
         <div class="totalInvPower">
-          <label for="inverterOption">Inverters</label><br />
-          <select name="inverterOption" id="inverterOption" class="standard_field" onchange="calcInvPower()">
+          <label for="inverterModelOpt">Inverter Model</label><br />
+          <select name="inverterModelOpt" id="inverterModelOpt" class="standard_field" onchange="calcInvPowerModel()">
             <% for (var i = 0; i < inverters.length; i++) { %>
             <option value=<%= inverters[i].inverterID %>><%= inverters[i].inverter_model %></option>
             <% } %>
           </select><br />
+          <label for="inverterPowerOpt">Inverter Power (Watts)</label><br />
+          <select name="inverterPowerOpt" id="inverterPowerOpt" class="standard_field" onchange="calcInvPower()">
+            <% for (var i = 0; i < inverters.length; i++) { %>
+            <option value=<%= inverters[i].inverterID %>><%= inverters[i].output_powerW %></option>
+            <% } %>
+          </select><br />
           <label for="inverterOptionPcs">Number of Inverters</label><br />
-          <select name="inverterOptionPcs" id="inverterOptionPcs" class="standard_field" onchange="calcInvPower()">
+          <select name="inverterOptionPcs" id="inverterOptionPcs" class="standard_field" onchange="calcInvPowerModel()">
             <% for (var i = 0; i <= 10; i++) { %>
             <option value=<%= i %>><%= i %></option>
             <% } %>
           </select><br />
-          <label for="calculatedInvPower">AC Power Output (Watts)</label><br />
+          <label for="calculatedInvPower">AC Power Output (kW)</label><br />
           <input class="standard_greyed_field" type="number" id="calculatedInvPower" name="calculatedInvPower" value="0" readonly /><br />
           <br />
         </div>
+
         <div class="totalSolarPower">
-          <label for="panelOption">Solar Panels</label><br />
-          <select name="panelOption" id="panelOption" class="standard_field" onchange="calcSolarPower()">
+          <label for="panelModelOption">Solar Panel Model</label><br />
+          <select name="panelModelOption" id="panelModelOption" class="standard_field" onchange="calcSolarPowerModel()">
             <% for (var i = 0; i < solarpanels.length; i++) { %>
-            <option value=<%= solarpanels[i].Wp %>><%= solarpanels[i].panel_model %></option>
+            <option value=<%= solarpanels[i].panelID %>><%= solarpanels[i].panel_model %></option>
             <% } %>
           </select><br />
+          <label for="panelPowerOption">Solar Panel Power (Watts)</label><br />
+          <select name="panelPowerOption" id="panelPowerOption" class="standard_field" onchange="calcSolarPower()">
+            <% for (var i = 0; i < solarpanels.length; i++) { %>
+            <option value=<%= solarpanels[i].panelID %>><%= solarpanels[i].Wp %></option>
+            <% } %>
+          </select><br />
+
           <label for="panelOptionPcs">Number of Solar Panels</label><br />
-          <select name="panelOptionPcs" id="panelOptionPcs" class="standard_field" onchange="calcSolarPower()">
+          <select name="panelOptionPcs" id="panelOptionPcs" class="standard_field" onchange="calcSolarPowerModel()">
             <% for (var i = 0; i <= 100; i++) { %>
             <option value=<%= i %>><%= i %></option>
             <% } %>
           </select><br />
-          <label for="calculatedSolarPower">Total System Power (Watts)</label><br />
+          <label for="calculatedSolarPower">PV DC Power Peak (kW)</label><br />
           <input class="standard_greyed_field" type="number" id="calculatedSolarPower" name="calculatedSolarPower" value="0" readonly /><br />
           <br />
         </div>
+
         <div id="selectBatt" class="totalBattPower">
-          <label for="batteryOption">Batteries</label><br />
-          <select name="batteryOption" id="batteryOption" class="standard_field" onchange="calcBattEnergy()">
+          <label for="batteryOptionModel">Battery Model</label><br />
+          <select name="batteryOptionModel" id="batteryOptionModel" class="standard_field" onchange="calcBattEnergyModel()">
             <% for (var i = 0; i < batteries.length; i++) { %>
-            <option value=<%= batteries[i].capacity_Ah %>><%= batteries[i].battery_model %></option>
+            <option value=<%= batteries[i].batteryID %>> <%= batteries[i].battery_brand %> <%= batteries[i].battery_model %></option>
+            <% } %>
+          </select><br />
+          <label for="batteryOptionEnergy">Battery Energy</label><br />
+          <select name="batteryOptionEnergy" id="batteryOptionEnergy" class="standard_field" onchange="calcBattEnergy()">
+            <% for (var i = 0; i < batteries.length; i++) { %>
+            <option value=<%= batteries[i].batteryID %>><%= batteries[i].energy_kWh %></option>
             <% } %>
           </select><br />
           <label for="batteryOptionPcs">Number of Batteries</label><br />

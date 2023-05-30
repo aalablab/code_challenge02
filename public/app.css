@@ -118,6 +118,7 @@ label {
   border-radius: 5px;
   border-color: rgb(230, 230, 230);
   background-color: rgb(211, 204, 204);
+  font-weight: bold;
 }
 
 .standard_btn {
@@ -149,6 +150,13 @@ label {
 }
 
 .powerenergyRequired {
+  padding-bottom: 10px;
+  font-size: 16px;
+  color: black;
+  font-weight: bold;
+}
+
+.powerenergySelected {
   padding-bottom: 10px;
   font-size: 16px;
   color: red;
