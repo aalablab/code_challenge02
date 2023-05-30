@@ -18,14 +18,6 @@ function calcNightUse() {
   document.getElementById("nighttimeUsePercent").value = nightUse;
 }
 
-function pvsystem_type() {
-  if ((document.getElementById("selectBatt").value = "gridtie")) {
-    document.getElementById("selectBatt").style.display = "None";
-  } else {
-    document.getElementById("selectBatt").style.display = "block";
-  }
-}
-
 function calcInvPower() {
   var inverterPower = document.getElementById("inverterOption").value;
   var numberOfPieces = document.getElementById("inverterOptionPcs").value;
@@ -39,8 +31,13 @@ function calcSolarPower() {
   document.getElementById("calculatedSolarPower").value = totalPower;
 }
 function calcBattEnergy() {
-  var battEnergy = document.getElementById("batteryOption").value;
-  var numberOfPieces = document.getElementById("batteryOptionPcs").value;
-  var totalEnergy = battEnergy * numberOfPieces;
-  document.getElementById("calculatedBattEnergy").value = totalEnergy;
+  if (document.getElementById("pvsystemType").innerHTML == "Grid-tie") {
+    document.getElementById("batteryOptionPcs").value = "0";
+    alert("There are no batteries for Grid-tie System.");
+  } else {
+    var battEnergy = document.getElementById("batteryOption").value;
+    var numberOfPieces = document.getElementById("batteryOptionPcs").value;
+    var totalEnergy = battEnergy * numberOfPieces;
+    document.getElementById("calculatedBattEnergy").value = totalEnergy;
+  }
 }

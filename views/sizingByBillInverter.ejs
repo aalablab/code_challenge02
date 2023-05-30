@@ -22,7 +22,7 @@
           Estimated System Power Required: <span class="powerenergyRequired"> <%= powerSizing[0].req_power_kw %> </span>
         </div>
         <div class="sizingDetails">
-          Phase Type: <%= powerSizing[0].output_phase %> Phase
+          Phase Type: <span class="powerenergyRequired" id="outputPhase"> <%= powerSizing[0].output_phase %></span> Phase
         </div>
         <div class="sizingDetails">
           <% if (powerSizing[0].netmeter_use_yesno == 0) { %>
@@ -40,12 +40,9 @@
         <div class="sizingDetails">
           Required Nighttime Energy (kWh): <span class="powerenergyRequired"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span>
         </div>
-        <label for="pvsystem_type">PV System Type</label><br />
-        <select name="pvsystem_type" id="pvsystem_type" class="standard_field" onchange="pvsystem_type()">
-          <option value="gridtie">Grid-tie</option>
-          <option value="hybrid">Hybrid</option>
-          <option value="offgrid">Off-Grid</option>
-        </select>
+        <div class="sizingDetails">
+          PV System Type: <span class="powerenergyRequired" id="pvsystemType" value="<%= powerSizing[0].pvsystem_type %>"><%=powerSizing[0].pvsystem_type%></span>
+        </div>
       </div>
       <div class="selectedEnergy">
         Selected Energy
@@ -59,7 +56,7 @@
           <label for="inverterOption">Inverters</label><br />
           <select name="inverterOption" id="inverterOption" class="standard_field" onchange="calcInvPower()">
             <% for (var i = 0; i < inverters.length; i++) { %>
-            <option value=<%= inverters[i].output_powerW %>><%= inverters[i].inverter_model %></option>
+            <option value=<%= inverters[i].inverterID %>><%= inverters[i].inverter_model %></option>
             <% } %>
           </select><br />
           <label for="inverterOptionPcs">Number of Inverters</label><br />

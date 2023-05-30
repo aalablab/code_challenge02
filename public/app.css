@@ -182,8 +182,5 @@ label {
 .totalBattPower {
   flex: 30%;
 }
-#selectBatt {
-  display: none;
-}
 
 /* ===================================== END CLIENT + SOLAR SIZING STYLES ========================================== */

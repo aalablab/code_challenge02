@@ -331,6 +331,7 @@ app.post("/suggestInverterByBill", function (req, res) {
   var nighttimeUsePercent = req.body.nighttimeUsePercent / 100;
   var currentPhase = req.body.currentPhase;
   var netmeterUse = req.body.netmeterUse;
+  var pvsystem_type = req.body.pvsystem_type;
   var clientID = req.session.clientID;
   var clientMethod = req.session.clientMethod;
 
@@ -355,7 +356,7 @@ app.post("/suggestInverterByBill", function (req, res) {
         Math.round((req_fullday_energy_kwh - req_daytime_energy_kwh) * 100) /
         100;
       var q =
-        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase, peak_sun_hours, daytime_use_percent, nighttime_use_percent, netmeter_use_yesno, monthly_consumption_kwh, req_fullday_energy_kwh, req_daytime_energy_kwh, req_nighttime_energy_kwh) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase, peak_sun_hours, daytime_use_percent, nighttime_use_percent, netmeter_use_yesno, monthly_consumption_kwh, req_fullday_energy_kwh, req_daytime_energy_kwh, req_nighttime_energy_kwh,pvsystem_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       connection.query(
         q,
         [
@@ -373,6 +374,7 @@ app.post("/suggestInverterByBill", function (req, res) {
           req_fullday_energy_kwh,
           req_daytime_energy_kwh,
           req_nighttime_energy_kwh,
+          pvsystem_type,
         ],
         function (error, results) {
           if (error) throw error; //Show error in the backend (not on the clientside)
@@ -400,37 +402,43 @@ app.get("/selectInverterByBill", function (req, res) {
       function (error, results, fields) {
         if (error) throw error; //Show error in the backend (not on the clientside)
         req.session.powerSizing = results;
+        powerSizing = req.session.powerSizing;
 
-        var q2 = "SELECT * FROM inverters";
-        connection.query(q2, function (error, results, fields) {
-          if (error) throw error; //Show error in the backend (not on the clientside)
-          req.session.inverters = results;
-
-          var q3 = "SELECT * FROM solarpanels";
-          connection.query(q3, function (error, results, fields) {
+        var q2 =
+          "SELECT * FROM inverters WHERE inverter_type = ? AND output_phase = ?";
+        connection.query(
+          q2,
+          [powerSizing[0].pvsystem_type, powerSizing[0].output_phase],
+          function (error, results, fields) {
             if (error) throw error; //Show error in the backend (not on the clientside)
-            req.session.solarpanels = results;
+            req.session.inverters = results;
 
-            var q4 = "SELECT * FROM batteries";
-            connection.query(q4, function (error, results, fields) {
+            var q3 = "SELECT * FROM solarpanels";
+            connection.query(q3, function (error, results, fields) {
               if (error) throw error; //Show error in the backend (not on the clientside)
-              req.session.batteries = results;
+              req.session.solarpanels = results;
 
-              req.session.wereInvertersFetch = true;
+              var q4 = "SELECT * FROM batteries";
+              connection.query(q4, function (error, results, fields) {
+                if (error) throw error; //Show error in the backend (not on the clientside)
+                req.session.batteries = results;
 
-              res.render("sizingByBillInverter", {
-                errors: req.session.errors,
-                wasClientCreated: req.session.wasClientCreated,
-                wereInvertersFetch: req.session.wereInvertersFetch,
-                clientDetails: req.session.clientDetails,
-                powerSizing: req.session.powerSizing,
-                inverters: req.session.inverters,
-                solarpanels: req.session.solarpanels,
-                batteries: req.session.batteries,
+                req.session.wereInvertersFetch = true;
+
+                res.render("sizingByBillInverter", {
+                  errors: req.session.errors,
+                  wasClientCreated: req.session.wasClientCreated,
+                  wereInvertersFetch: req.session.wereInvertersFetch,
+                  clientDetails: req.session.clientDetails,
+                  powerSizing: req.session.powerSizing,
+                  inverters: req.session.inverters,
+                  solarpanels: req.session.solarpanels,
+                  batteries: req.session.batteries,
+                });
               });
             });
-          });
-        });
+          }
+        );
       }
     );
   } else {

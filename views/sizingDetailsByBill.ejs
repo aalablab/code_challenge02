@@ -26,7 +26,7 @@
       <input class="standard_field" type="number" id="peakSunHours" name="peakSunHours" value="4.0" min="0" step="0.01" /><br />
 
       <label for="daytimeUsePercent">Daytime Use in Percent</label><br />
-      <input class="standard_field" type="number" id="daytimeUsePercent" name="daytimeUsePercent" value="40" min="0" max="100" step="1" onchange="calcNightUse()" /><br />
+      <input class="standard_field" type="number" id="daytimeUsePercent" name="daytimeUsePercent" value="40" min="0" max="100" step="1" onmouseout="calcNightUse()" /><br />
 
       <label for="nighttimeUsePercent">Night Time Use in Percent</label><br />
       <input class="standard_greyed_field" type="number" id="nighttimeUsePercent" name="nighttimeUsePercent" value="60" readonly /><br />
@@ -42,6 +42,13 @@
       <select name="netmeterUse" id="netmeterUse" class="standard_field">
         <option value="0">No</option>
         <option value="1">Yes</option>
+      </select>
+      <br />
+
+      <label for="pvsystem_type">PV System Type</label><br />
+      <select name="pvsystem_type" id="pvsystem_type" class="standard_field">
+        <option value="Grid-tie">Grid-tie</option>
+        <option value="Hybrid">Hybrid / Off-Grid</option>
       </select>
       <br /><br />
 
