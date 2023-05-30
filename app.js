@@ -427,7 +427,6 @@ app.get("/selectInverterByBill", function (req, res) {
 
                 res.render("sizingByBillInverter", {
                   errors: req.session.errors,
-                  wasClientCreated: req.session.wasClientCreated,
                   wereInvertersFetch: req.session.wereInvertersFetch,
                   clientDetails: req.session.clientDetails,
                   powerSizing: req.session.powerSizing,
@@ -448,6 +447,8 @@ app.get("/selectInverterByBill", function (req, res) {
 
 app.post("/sizingByBillResults", function (req, res) {
   let v_sessionUsr = req.session.user;
+  var clientID = req.session.clientID;
+
   let powerSizing = req.session.powerSizing;
 
   var inverterModelOpt = req.body.inverterModelOpt;
@@ -519,11 +520,14 @@ app.post("/sizingByBillResults", function (req, res) {
   req.session.availableNighttimeEnergy = availableNighttimeEnergy;
   req.session.netmeterSellEnergy = netmeterSellEnergy;
   req.session.netmeterOffsetEnergy = netmeterOffsetEnergy;
-  req.session.purchaseEnergy = purchaseEnergy;
+  req.session.purchaseEnergy = Math.round(purchaseEnergy * 100) / 100;
+  req.session.resultingBill = purchaseEnergy - netmeterOffsetEnergy;
+  req.session.resultingSavings =
+    availableDaytimeEnergy + availableNighttimeEnergy + netmeterOffsetEnergy;
 
   if (v_sessionUsr) {
     var q =
-      "INSERT INTO clientPowerSizings (inverterID, pcs_of_inverter, selected_ac_output_power_kw, ac_output_energy_fullday, panelID, pcs_of_panel, solar_panel_kw_peak, batteryID, pcs_of_battery, battery_energy_kwh, netmeter_sellenergy_kwh, netmeter_offsetenergy_kwh, grid_purchases_energy_kwh ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      "UPDATE clientPowerSizings SET inverterID = ?, pcs_of_inverter = ?, selected_ac_output_power_kw = ?, ac_output_energy_fullday = ?, panelID = ?, pcs_of_panel = ?, solar_panel_kw_peak = ?, batteryID = ?, pcs_of_battery = ?, battery_energy_kwh = ?, netmeter_sellenergy_kwh = ?, netmeter_offsetenergy_kwh = ?, grid_purchases_energy_kwh = ?  WHERE clientID = ? AND client_sizingID = ?";
     connection.query(
       q,
       [
@@ -540,9 +544,31 @@ app.post("/sizingByBillResults", function (req, res) {
         netmeterSellEnergy,
         netmeterOffsetEnergy,
         purchaseEnergy,
+        clientID,
+        req.session.clientSizingID,
       ],
       function (error, results) {
         if (error) throw error; //Show error in the backend (not on the clientside)
+
+        var q1 =
+          "UPDATE clientPowerSizings INNER JOIN inverters ON clientPowerSizings.inverterID = inverters.inverterID SET clientPowerSizings.selected_inverter = inverters.inverter_model";
+        connection.query(q1, function (error, results) {
+          if (error) throw error;
+
+          var q2 =
+            "UPDATE clientPowerSizings INNER JOIN solarpanels ON clientPowerSizings.panelID = solarpanels.panelID SET clientPowerSizings.selected_panel = solarpanels.panel_model";
+          connection.query(q2, function (error, results) {
+            if (error) throw error;
+
+            var q3 =
+              "UPDATE clientPowerSizings INNER JOIN batteries ON clientPowerSizings.batteryID = batteries.batteryID SET clientPowerSizings.selected_battery = batteries.battery_model";
+            connection.query(q3, function (error, results) {
+              if (error) throw error;
+
+              res.redirect("/sizingByBillResults");
+            });
+          });
+        });
       }
     );
   } else {
@@ -588,13 +614,23 @@ app.get("/sizingByBillResults", function (req, res) {
 
                 res.render("sizingByBillInverter", {
                   errors: req.session.errors,
-                  wasClientCreated: req.session.wasClientCreated,
                   wereInvertersFetch: req.session.wereInvertersFetch,
                   clientDetails: req.session.clientDetails,
                   powerSizing: req.session.powerSizing,
                   inverters: req.session.inverters,
                   solarpanels: req.session.solarpanels,
                   batteries: req.session.batteries,
+
+                  systemPower: req.session.systemPower,
+                  fulldayEnergy: req.session.fulldayEnergy,
+                  availableDaytimeEnergy: req.session.availableDaytimeEnergy,
+                  availableNighttimeEnergy:
+                    req.session.availableNighttimeEnergy,
+                  netmeterSellEnergy: req.session.netmeterSellEnergy,
+                  netmeterOffsetEnergy: req.session.netmeterOffsetEnergy,
+                  purchaseEnergy: req.session.purchaseEnergy,
+                  resultingBill: req.session.resultingBill,
+                  resultingSavings: req.session.resultingSavings,
                 });
               });
             });

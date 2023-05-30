@@ -45,33 +45,48 @@
         </div>
       </div>
       <div class="selectedEnergy">
-        <% if (wereInvertersFetch == "true") { %>
+        <% if (wereInvertersFetch == true) { %>
         <div class="clientDetails">Selected Energy Size</div>
         <div class="sizingDetails">
-          Estimated System Power Selected: <span class="powerenergySelected"> <%= powerSizing[0].req_power_kw %> </span>
+          Inverter: <span class=""> <%= powerSizing[0].selected_inverter %> with power of <%= powerSizing[0].selected_ac_output_power_kw %>kW </span>
         </div>
         <div class="sizingDetails">
-          Available Full Day Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_fullday_energy_kwh %> </span>
+          Solar Panels: <span class=""> <%= powerSizing[0].selected_panel %> with total power of <%= powerSizing[0].solar_panel_kw_peak %>kW </span>
         </div>
         <div class="sizingDetails">
-          Available Daytime Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+          Batteries: <span class=""> <%= powerSizing[0].selected_battery %> with total energy of <%= powerSizing[0].battery_energy_kwh %>kWh </span>
+        </div>
+
+
+
+        <div class="sizingDetails">
+          Estimated System Power Selected: <span class="powerenergySelected"> <%= systemPower %> </span>
         </div>
         <div class="sizingDetails">
-          Available Nighttime Energy (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_nighttime_energy_kwh %> </span>
+          Available Full Day Energy (kWh): <span class="powerenergySelected"> <%= fulldayEnergy %> </span>
         </div>
         <div class="sizingDetails">
-          Energy that can be Sold (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+          Available Daytime Energy (kWh): <span class="powerenergySelected"> <%= availableDaytimeEnergy %> </span>
         </div>
         <div class="sizingDetails">
-          Energy to be Purchased (kWh): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+          Available Nighttime Energy (kWh): <span class="powerenergySelected"> <%= availableNighttimeEnergy %> </span>
+        </div>
+        <div class="sizingDetails">
+          Energy that can be Sold (kWh): <span class="powerenergySelected"> <%= netmeterSellEnergy %> </span>
+        </div>
+        <div class="sizingDetails">
+          Energy to be Purchased (kWh): <span class="powerenergySelected"> <%= purchaseEnergy %> </span>
         </div>
         <% } %>
       </div>
       <div class="predictedResults">
-        <% if (wereInvertersFetch == "true") { %>
+        <% if (wereInvertersFetch == true) { %>
         <div class="clientDetails">Results</div>
         <div class="sizingDetails">
-          Savings (Php): <span class="powerenergySelected"> <%= powerSizing[0].req_daytime_energy_kwh %> </span>
+          Estimated Monthly Electric Bill (Php): <span class="powerenergyRequired"> <%= 30* Math.round(resultingBill*powerSizing[0].local_energy_price) %> </span>
+        </div>
+        <div class="sizingDetails">
+          Estimated Monthly Savings (Php): <span class="powerenergyRequired"> <%= 30* Math.round(resultingSavings*powerSizing[0].local_energy_price) %> </span>
         </div>
         <% } %>
       </div>
@@ -160,7 +175,10 @@
       </div>
 
       <button type="submit" id="solarsize-btn" class="standard_btn">
-        SUBMIT
+        START SIZING
+      </button>
+      <button type="submit" id="acceptResults-btn" class="standard_btn" formaction="/clientList" formmethod="get">
+        ACCEPT RESULTS
       </button>
       <button type="submit" id="logout-btn" class="standard_btn" formaction="/cancelCreateClient" formmethod="post">
         CANCEL
