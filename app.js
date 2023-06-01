@@ -473,13 +473,15 @@ app.post("/sizingByBillResults", function (req, res) {
 
   var batteryOptionModel = req.body.batteryOptionModel;
   var batteryOptionPcs = req.body.batteryOptionPcs;
-  var calculatedBattEnergy = req.body.calculatedBattEnergy;
+  var calculatedBattEnergy = parseFloat(req.body.calculatedBattEnergy);
 
   var availableDaytimeEnergy = 0;
   var availableNighttimeEnergy = 0;
   var netmeterSellEnergy = 0;
   var netmeterOffsetEnergy = 0;
   var purchaseEnergy = 0;
+  var sellAndBuyRate =
+    powerSizing[0].netmeter_sell_price / powerSizing[0].local_energy_price;
   if (fulldayEnergy <= powerSizing[0].req_daytime_energy_kwh) {
     availableDaytimeEnergy = fulldayEnergy;
     purchaseEnergy = powerSizing[0].req_fullday_energy_kwh - fulldayEnergy;
@@ -491,8 +493,7 @@ app.post("/sizingByBillResults", function (req, res) {
     availableNighttimeEnergy = fulldayEnergy - availableDaytimeEnergy;
     if (availableNighttimeEnergy >= calculatedBattEnergy) {
       netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
-      netmeterOffsetEnergy =
-        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
+      netmeterOffsetEnergy = netmeterSellEnergy * sellAndBuyRate;
       purchaseEnergy =
         powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
       availableNighttimeEnergy = calculatedBattEnergy;
@@ -506,13 +507,11 @@ app.post("/sizingByBillResults", function (req, res) {
     if (powerSizing[0].req_nighttime_energy_kwh <= calculatedBattEnergy) {
       netmeterSellEnergy =
         availableNighttimeEnergy - powerSizing[0].req_nighttime_energy_kwh;
-      netmeterOffsetEnergy =
-        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
+      netmeterOffsetEnergy = netmeterSellEnergy * sellAndBuyRate;
       availableNighttimeEnergy = powerSizing[0].req_nighttime_energy_kwh;
     } else {
       netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
-      netmeterOffsetEnergy =
-        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
+      netmeterOffsetEnergy = netmeterSellEnergy * sellAndBuyRate;
       purchaseEnergy =
         powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
       availableNighttimeEnergy = calculatedBattEnergy;
@@ -635,6 +634,22 @@ app.get("/sizingByBillResults", function (req, res) {
                 resultingSavings =
                   Math.round(req.session.resultingSavings * 100) / 100;
 
+                resultingBill =
+                  30 *
+                  Math.round(
+                    resultingBill *
+                      req.session.powerSizing[0].local_energy_price
+                  );
+                resultingBill = resultingBill.toLocaleString("en-US");
+
+                resultingSavings =
+                  30 *
+                  Math.round(
+                    resultingSavings *
+                      req.session.powerSizing[0].local_energy_price
+                  );
+                resultingSavings = resultingSavings.toLocaleString("en-US");
+
                 res.render("sizingByBillInverter", {
                   errors: req.session.errors,
                   wereInvertersFetch: req.session.wereInvertersFetch,
@@ -644,16 +659,15 @@ app.get("/sizingByBillResults", function (req, res) {
                   solarpanels: req.session.solarpanels,
                   batteries: req.session.batteries,
 
-                  systemPower: req.session.systemPower,
-                  fulldayEnergy: req.session.fulldayEnergy,
-                  availableDaytimeEnergy: req.session.availableDaytimeEnergy,
-                  availableNighttimeEnergy:
-                    req.session.availableNighttimeEnergy,
-                  netmeterSellEnergy: req.session.netmeterSellEnergy,
-                  netmeterOffsetEnergy: req.session.netmeterOffsetEnergy,
-                  purchaseEnergy: req.session.purchaseEnergy,
-                  resultingBill: req.session.resultingBill,
-                  resultingSavings: req.session.resultingSavings,
+                  systemPower: systemPower,
+                  fulldayEnergy: fulldayEnergy,
+                  availableDaytimeEnergy: availableDaytimeEnergy,
+                  availableNighttimeEnergy: availableNighttimeEnergy,
+                  netmeterSellEnergy: netmeterSellEnergy,
+                  netmeterOffsetEnergy: netmeterOffsetEnergy,
+                  purchaseEnergy: purchaseEnergy,
+                  resultingBill: resultingBill,
+                  resultingSavings: resultingSavings,
                 });
               });
             });

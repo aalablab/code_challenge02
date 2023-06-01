@@ -75,7 +75,7 @@
           Energy that can be Sold (kWh): <span class="powerenergySelected"> <%= netmeterSellEnergy %> </span>
         </div>
         <div class="sizingDetails">
-          Energy to be Purchased (kWh): <span class="powerenergySelected"> <%= purchaseEnergy %> </span>
+          Energy to be Purchased per Day(kWh): <span class="powerenergySelected"> <%= purchaseEnergy %></span>
         </div>
         <% } %>
       </div>
@@ -83,10 +83,10 @@
         <% if (wereInvertersFetch == true) { %>
         <div class="clientDetails">Results</div>
         <div class="sizingDetails">
-          Estimated Monthly Electric Bill (Php): <span class="powerenergyRequired"> <%= 30* Math.round(resultingBill*powerSizing[0].local_energy_price) %> </span>
+          Estimated Monthly Electric Bill (Php): <span class="powerenergyRequired"> <%= resultingBill %> </span>
         </div>
         <div class="sizingDetails">
-          Estimated Monthly Savings (Php): <span class="powerenergyRequired"> <%= 30* Math.round(resultingSavings*powerSizing[0].local_energy_price) %> </span>
+          Estimated Monthly Savings (Php): <span class="powerenergyRequired"> <%= resultingSavings %> </span>
         </div>
         <% } %>
       </div>
