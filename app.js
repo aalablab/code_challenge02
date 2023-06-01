@@ -331,6 +331,7 @@ app.post("/suggestInverterByBill", function (req, res) {
   var nighttimeUsePercent = req.body.nighttimeUsePercent / 100;
   var currentPhase = req.body.currentPhase;
   var netmeterUse = req.body.netmeterUse;
+  var netmeterRate = req.body.netmeterRate;
   var pvsystem_type = req.body.pvsystem_type;
   var clientID = req.session.clientID;
   var clientMethod = req.session.clientMethod;
@@ -356,7 +357,7 @@ app.post("/suggestInverterByBill", function (req, res) {
         Math.round((req_fullday_energy_kwh - req_daytime_energy_kwh) * 100) /
         100;
       var q =
-        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase, peak_sun_hours, daytime_use_percent, nighttime_use_percent, netmeter_use_yesno, monthly_consumption_kwh, req_fullday_energy_kwh, req_daytime_energy_kwh, req_nighttime_energy_kwh,pvsystem_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "INSERT INTO clientPowerSizings (clientID, sizing_method, req_power_kw, monthly_bill, local_energy_price, output_phase, peak_sun_hours, daytime_use_percent, nighttime_use_percent, netmeter_use_yesno, monthly_consumption_kwh, req_fullday_energy_kwh, req_daytime_energy_kwh, req_nighttime_energy_kwh,pvsystem_type,netmeter_sell_price) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       connection.query(
         q,
         [
@@ -375,6 +376,7 @@ app.post("/suggestInverterByBill", function (req, res) {
           req_daytime_energy_kwh,
           req_nighttime_energy_kwh,
           pvsystem_type,
+          netmeterRate,
         ],
         function (error, results) {
           if (error) throw error; //Show error in the backend (not on the clientside)
@@ -489,7 +491,8 @@ app.post("/sizingByBillResults", function (req, res) {
     availableNighttimeEnergy = fulldayEnergy - availableDaytimeEnergy;
     if (availableNighttimeEnergy >= calculatedBattEnergy) {
       netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
-      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      netmeterOffsetEnergy =
+        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
       purchaseEnergy =
         powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
       availableNighttimeEnergy = calculatedBattEnergy;
@@ -503,11 +506,13 @@ app.post("/sizingByBillResults", function (req, res) {
     if (powerSizing[0].req_nighttime_energy_kwh <= calculatedBattEnergy) {
       netmeterSellEnergy =
         availableNighttimeEnergy - powerSizing[0].req_nighttime_energy_kwh;
-      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      netmeterOffsetEnergy =
+        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
       availableNighttimeEnergy = powerSizing[0].req_nighttime_energy_kwh;
     } else {
       netmeterSellEnergy = availableNighttimeEnergy - calculatedBattEnergy;
-      netmeterOffsetEnergy = netmeterSellEnergy * 0.5;
+      netmeterOffsetEnergy =
+        netmeterSellEnergy * powerSizing[0].netmeter_sell_price;
       purchaseEnergy =
         powerSizing[0].req_nighttime_energy_kwh - calculatedBattEnergy;
       availableNighttimeEnergy = calculatedBattEnergy;
@@ -520,7 +525,7 @@ app.post("/sizingByBillResults", function (req, res) {
   req.session.availableNighttimeEnergy = availableNighttimeEnergy;
   req.session.netmeterSellEnergy = netmeterSellEnergy;
   req.session.netmeterOffsetEnergy = netmeterOffsetEnergy;
-  req.session.purchaseEnergy = Math.round(purchaseEnergy * 100) / 100;
+  req.session.purchaseEnergy = purchaseEnergy;
   req.session.resultingBill = purchaseEnergy - netmeterOffsetEnergy;
   req.session.resultingSavings =
     availableDaytimeEnergy + availableNighttimeEnergy + netmeterOffsetEnergy;
@@ -611,6 +616,24 @@ app.get("/sizingByBillResults", function (req, res) {
                 req.session.batteries = results;
 
                 req.session.wereInvertersFetch = true;
+
+                systemPower = Math.round(req.session.systemPower * 100) / 100;
+                fulldayEnergy =
+                  Math.round(req.session.fulldayEnergy * 100) / 100;
+                availableDaytimeEnergy =
+                  Math.round(req.session.availableDaytimeEnergy * 100) / 100;
+                availableNighttimeEnergy =
+                  Math.round(req.session.availableNighttimeEnergy * 100) / 100;
+                netmeterSellEnergy =
+                  Math.round(req.session.netmeterSellEnergy * 100) / 100;
+                netmeterOffsetEnergy =
+                  Math.round(req.session.netmeterOffsetEnergy * 100) / 100;
+                purchaseEnergy =
+                  Math.round(req.session.purchaseEnergy * 100) / 100;
+                resultingBill =
+                  Math.round(req.session.resultingBill * 100) / 100;
+                resultingSavings =
+                  Math.round(req.session.resultingSavings * 100) / 100;
 
                 res.render("sizingByBillInverter", {
                   errors: req.session.errors,
